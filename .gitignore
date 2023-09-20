@@ -60,3 +60,6 @@ crashlytics-build.properties
 
 # Rider Configurations
 .idea
+
+# Exclude below
+.DS_Store

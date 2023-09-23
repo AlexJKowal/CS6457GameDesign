@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# Check for Windows environment
+if [ "$OS" = "Windows_NT" ]; then
+    echo "Windows environment detected. Skipping pre-commit hook."
+    exit 0
+fi
+
+# Ensure .NET Core 7 is installed
+dotnet --version | grep "7.0" &> /dev/null
+if [ $? -ne 0 ]; then
+    echo "Error: .NET Core 7.0 is not installed."
+    exit 1
+fi
+
+
+# check if dotnet-format is installed
+dotnet format --version &> /dev/null || dotnet tool install --global dotnet-format
+
+# lint C# scripts
+
+dotnet format cs6457-mcaaa.sln
+git diff --exit-code || (echo "Linting errors found in C# scripts." && exit 1)
+
+# Setup Unity
+
+UNITY_PATH="/Applications/Unity/Unity.app/Contents/MacOS/Unity" # Adjust this path to your Unity installation
+
+# Command to build a Unity project (adjust arguments as necessary)
+"$UNITY_PATH" -batchmode -nographics -silent-crashes -quit -projectPath "$(pwd)" -buildTarget StandaloneOSX
+if [ $? -ne 0 ]; then
+    echo "Unity build failed."
+    exit 1
+fi
+
+# If all checks pass
+exit 0

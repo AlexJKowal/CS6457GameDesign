@@ -12,6 +12,8 @@ public class BallTriggerTracker : MonoBehaviour
     private bool isServed = false;
     private Vector3 initialPlayerPosition;
     private Vector3 initialBallPosition;
+    private PauseManager pauseManager;
+
 
     void Start()
     {
@@ -21,6 +23,8 @@ public class BallTriggerTracker : MonoBehaviour
 
         ballRb = GetComponent<Rigidbody>();
         ballRb.isKinematic = true;  // Make the ball static in the air until served
+
+        pauseManager = FindObjectOfType<PauseManager>();
     }
 
     void Update()
@@ -33,7 +37,11 @@ public class BallTriggerTracker : MonoBehaviour
         }
 
         // Slow down time when holding space after serve
-        if (Input.GetKey(KeyCode.Space) && isServed)
+        if (pauseManager.checkPaused())
+        {
+            Debug.Log($"Game is paused");
+        }
+        else if (Input.GetKey(KeyCode.Space) && isServed)
         {
             Debug.Log($"Slow-mo activated");
             Time.timeScale = slowMotionFactor;
@@ -71,5 +79,15 @@ public class BallTriggerTracker : MonoBehaviour
 
         // Reset the player
         playerTransform.position = initialPlayerPosition;
+    }
+
+    void OnCollisionEnter(Collision c)
+    {
+
+        if (c.impulse.magnitude > 0.25f)
+        {
+            EventManager.TriggerEvent<BallBounceEvent, Vector3>(c.contacts[0].point);
+
+        }
     }
 }

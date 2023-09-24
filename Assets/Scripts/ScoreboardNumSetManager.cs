@@ -32,7 +32,7 @@ public class ScoreboardNumSetManager : MonoBehaviour
     }
     private void OnTriggerEnter(Collider c)
     {
-        if (c.CompareTag("Player"))
+        if (c.CompareTag("Ball"))
         {
             if (count1 == 9)
             {

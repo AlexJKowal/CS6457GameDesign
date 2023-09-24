@@ -22,8 +22,8 @@ public class EnemyControlScript : MonoBehaviour
     private float maximumX;
     private float minimumZ;
     private float maximumZ;
-	private float centerX;
-	private float centerZ;
+    private float centerX;
+    private float centerZ;
     private Collider homeSquareCollider;
     private float linVelCurrent;
 
@@ -90,7 +90,7 @@ public class EnemyControlScript : MonoBehaviour
             {
                 newAcceleration *= 0.75f;
             }
-           
+
             float newVelocity = Mathf.Clamp(
                 linVelCurrent + (newAcceleration * Time.deltaTime),
                 -1 * linVelMax,
@@ -100,36 +100,36 @@ public class EnemyControlScript : MonoBehaviour
             linVelCurrent = newVelocity;
             velx = linVelCurrent / linVelMax * Mathf.Sin(differenceInAngles * Mathf.Deg2Rad);
             vely = linVelCurrent / linVelMax * Mathf.Cos(differenceInAngles * Mathf.Deg2Rad);
-            
+
         }
         else
         {
             anim.SetBool("IsTraversing", false);
-    
+
             Vector3 toTarget = (targetLocation - this.transform.position).normalized;
             float turnAngle = Vector3.SignedAngle(this.transform.forward, toTarget, Vector3.up);
             if (Mathf.Abs(turnAngle) > angleTolerance)
             {
-                velx = Mathf.Sign(turnAngle) * 1.0f; 
+                velx = Mathf.Sign(turnAngle) * 1.0f;
             }
             else
             {
                 velx = 0;
             }
         }
-        
+
         anim.SetFloat("velx", velx);
         anim.SetFloat("vely", vely);
-        
+
     }
 
-	void OnAnimatorMove()
+    void OnAnimatorMove()
     {
         Vector3 newRootPosition;
         Quaternion newRootRotation;
-	
+
         newRootPosition = anim.rootPosition;
-		newRootPosition = Vector3.LerpUnclamped(this.transform.position, newRootPosition, animSpeed);    
+        newRootPosition = Vector3.LerpUnclamped(this.transform.position, newRootPosition, animSpeed);
         newRootRotation = anim.rootRotation;
 
 
@@ -205,29 +205,29 @@ public class EnemyControlScript : MonoBehaviour
         }
         targetLocation.y = this.transform.position.y;
         targetRotation = Quaternion.LookRotation(targetLocation - this.transform.position);
-        
+
     }
 
     private void DeterminePlayerBounds()
     {
         centerX = homeSquareCollider.bounds.center.x;
         centerZ = homeSquareCollider.bounds.center.z;
-        
+
         if (homeSquare.CompareTag("Square1"))
         {
             minimumX = (-1) * Mathf.Infinity;
             minimumZ = (-1) * Mathf.Infinity;
             maximumX = homeSquareCollider.bounds.max.x;
-            maximumZ = homeSquareCollider.bounds.max.z; 
-            
+            maximumZ = homeSquareCollider.bounds.max.z;
+
         }
         else if (homeSquare.CompareTag("Square2"))
         {
             minimumX = (-1) * Mathf.Infinity;
-            minimumZ = homeSquareCollider.bounds.min.z; 
+            minimumZ = homeSquareCollider.bounds.min.z;
             maximumX = homeSquareCollider.bounds.max.x;
             maximumZ = Mathf.Infinity;
-            
+
         }
         else if (homeSquare.CompareTag("Square3"))
         {
@@ -241,15 +241,15 @@ public class EnemyControlScript : MonoBehaviour
             minimumX = homeSquareCollider.bounds.min.x;
             minimumZ = (-1) * Mathf.Infinity;
             maximumX = Mathf.Infinity;
-            maximumZ = homeSquareCollider.bounds.max.z; 
+            maximumZ = homeSquareCollider.bounds.max.z;
         }
     }
-    
+
     private bool CheckShouldJump()
     {
         bool shouldJump = false;
         RaycastHit hit;
-        if (Physics.Raycast (transform.position, transform.TransformDirection(Vector3.up), out hit) && hit.transform.CompareTag("Ball"))
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.up), out hit) && hit.transform.CompareTag("Ball"))
         {
             shouldJump = true;
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.up) * hit.distance, Color.red);
@@ -257,20 +257,20 @@ public class EnemyControlScript : MonoBehaviour
 
         return shouldJump;
     }
-    
+
     void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
         float lineLength = 2.0f;
         Vector3 forwardPosition = transform.position + transform.forward * lineLength;
-    
-        Gizmos.DrawLine(transform.position, forwardPosition);
-        
-        float arrowHeadAngle = 25.0f; 
-        float arrowHeadLength = 0.5f; 
 
-        Vector3 rightArrow = Quaternion.LookRotation(transform.forward) * Quaternion.Euler(0,180+arrowHeadAngle,0) * new Vector3(0,0,1);
-        Vector3 leftArrow = Quaternion.LookRotation(transform.forward) * Quaternion.Euler(0,180-arrowHeadAngle,0) * new Vector3(0,0,1);
+        Gizmos.DrawLine(transform.position, forwardPosition);
+
+        float arrowHeadAngle = 25.0f;
+        float arrowHeadLength = 0.5f;
+
+        Vector3 rightArrow = Quaternion.LookRotation(transform.forward) * Quaternion.Euler(0, 180 + arrowHeadAngle, 0) * new Vector3(0, 0, 1);
+        Vector3 leftArrow = Quaternion.LookRotation(transform.forward) * Quaternion.Euler(0, 180 - arrowHeadAngle, 0) * new Vector3(0, 0, 1);
 
         Gizmos.DrawRay(forwardPosition, rightArrow * arrowHeadLength);
         Gizmos.DrawRay(forwardPosition, leftArrow * arrowHeadLength);
@@ -282,6 +282,6 @@ public class EnemyControlScript : MonoBehaviour
         }
 
     }
-    
+
 
 }

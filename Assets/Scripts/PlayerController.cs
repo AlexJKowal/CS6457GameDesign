@@ -2,21 +2,45 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 5f;
-    public Transform cameraTransform;
-    public float minVerticalAngle = -40f;
-    public float maxVerticalAngle = 80f;
-    public float turnSpeed = 5f;
+    public float moveSpeed = 10f;
+    public Transform ballTransform;
+    public Camera mainCamera;
+    public float maxThrowForce = 20f;
+    public float chargeRate = 10f;
 
-    private float verticalRotation = 0f;
+    private Rigidbody playerRb;
+    private Rigidbody ballRb;
+    private bool isHoldingBall = false;
+    private float chargeAmount = 0f;
+    private bool justPickedUp = false;
+
+
+    void Start()
+    {
+        playerRb = GetComponent<Rigidbody>();
+        ballRb = ballTransform.GetComponent<Rigidbody>();
+    }
+
+    void FixedUpdate()
+    {
+        MovePlayer();
+    }
 
     void Update()
     {
-        // Player Movement
-        MovePlayer();
+        RotatePlayer();
+        HandleBall();
+    }
 
-        // Camera Orbit
-        CameraControl();
+    void RotatePlayer()
+    {
+        Vector3 mousePos = Input.mousePosition;
+        Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
+
+        Vector3 aimDirection = mousePos - playerScreenPos;
+        float angle = Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg;
+
+        transform.rotation = Quaternion.Euler(0, angle, 0);
     }
 
     void MovePlayer()
@@ -27,48 +51,63 @@ public class PlayerController : MonoBehaviour
 
         if (direction.magnitude >= 0.1f)
         {
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cameraTransform.eulerAngles.y;
-            Vector3 moveDir = Quaternion.Euler(0f, targetAngle, 0f) * Vector3.forward;
-            transform.Translate(moveDir * moveSpeed * Time.deltaTime, Space.World);
-        }
-        else
-        {
-            // Gradually stop the player when no keys are pressed
-            transform.position = Vector3.Lerp(transform.position, transform.position, 0.9f);
+            // Convert the direction from local to world space based on camera orientation
+            Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
+            moveDir *= moveSpeed * Time.fixedDeltaTime;
+            playerRb.MovePosition(transform.position + moveDir);
         }
     }
 
-    void CameraControl()
+
+    void HandleBall()
     {
-        float mouseX = Input.GetAxis("Mouse X");
-        float mouseY = Input.GetAxis("Mouse Y");
+        float distanceToBall = Vector3.Distance(transform.position, ballTransform.position);
 
-        cameraTransform.RotateAround(transform.position, Vector3.up, mouseX * turnSpeed);
+        // Debug message for proximity to ball
+        Debug.Log("Distance to Ball: " + distanceToBall);
 
-        verticalRotation -= mouseY * turnSpeed;
-        verticalRotation = Mathf.Clamp(verticalRotation, minVerticalAngle, maxVerticalAngle);
+        // Pick up ball on mouse click if not already holding
+        if (!isHoldingBall && Input.GetMouseButtonDown(0) && distanceToBall <= 1.5f)
+        {
+            Debug.Log("Picking up ball");  // Debug
+            isHoldingBall = true;
+            justPickedUp = true;
+        }
 
-        Vector3 currentRotation = cameraTransform.localEulerAngles;
-        currentRotation.x = verticalRotation;
-        cameraTransform.localEulerAngles = currentRotation;
+        // If holding the ball
+        if (isHoldingBall)
+        {
+            Debug.Log("Holding ball");  // Debug
+
+            // Position the ball in front of the player
+            ballTransform.position = transform.position + transform.forward;
+
+            // Charge throw while holding the ball
+            chargeAmount += Time.deltaTime * chargeRate;
+
+            // Debug message for charge amount
+            Debug.Log("Charge Amount: " + chargeAmount);
+
+            // Release and throw ball on mouse click, but not if it was just picked up
+            if (Input.GetMouseButtonDown(0) && !justPickedUp)
+            {
+                Debug.Log("Attempting to throw ball");  // Debug
+                float finalThrowForce = Mathf.Clamp(chargeAmount, 0, maxThrowForce);
+                ballRb.velocity = transform.forward * finalThrowForce;
+                ResetBallHandling();
+            }
+
+            // Reset the justPickedUp flag
+            justPickedUp = false;
+        }
     }
 
-    void OnCollisionEnter(Collision collision)
+
+    void ResetBallHandling()
     {
-        // Check if the collided object has a tag "Ball"
-        if (collision.gameObject.CompareTag("Ball"))
-        {
-            // Get the normal vector of the collision
-            Vector3 collisionNormal = collision.contacts[0].normal;
-
-            // Get the Rigidbody component of the bouncing ball
-            Rigidbody ballRb = collision.gameObject.GetComponent<Rigidbody>();
-
-            // Apply force to the bouncing ball with an upward component
-            Vector3 forceDirection = -collisionNormal + new Vector3(0, 0.5f, 0);  // Upward force
-            ballRb.AddForce(forceDirection.normalized * 500f);  // 500f is the force magnitude
-
-        }
+        isHoldingBall = false;
+        chargeAmount = 0f;
+        justPickedUp = false;
     }
 
 }

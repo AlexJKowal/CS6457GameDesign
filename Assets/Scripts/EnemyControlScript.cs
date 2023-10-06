@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class EnemyControlScript : MonoBehaviour
 {
@@ -12,6 +13,21 @@ public class EnemyControlScript : MonoBehaviour
     public float animSpeed;
     public float linAccelMax;
     public float linVelMax;
+    
+    public enum AIState
+    {
+        GetBallState,
+        GoToSmashLocationState,
+        GoToLobLocationState,
+        ThrowBallState,
+        GoHomeState
+    }
+    
+    public AIState aiState;
+    
+    private SquareLocation currentSquare = SquareLocation.square_two; // Temporary
+    
+    private Vector2 trackingSpeeds;
 
     private Animator anim;
     private Rigidbody rbody;
@@ -27,6 +43,20 @@ public class EnemyControlScript : MonoBehaviour
     private Collider homeSquareCollider;
     private float linVelCurrent;
 
+    private enum StateEnum
+    {
+        incomingLob,
+        incomingSmash,
+        gotBall,
+        safelyOutOfRange,
+        outgoingHit
+    }
+
+    private StateEnum stateEnum = StateEnum.safelyOutOfRange;
+    
+    private UnityAction<SquareLocation, ShotType> ballHitEventListener;
+    private UnityAction<Vector3, SquareLocation> ballBounceEventListener;
+
     // Start is called before the first frame update
 
     void Start()
@@ -36,14 +66,83 @@ public class EnemyControlScript : MonoBehaviour
         ballRbody = gameBall.GetComponent<Rigidbody>();
         homeSquareCollider = homeSquare.GetComponent<Collider>();
         linVelCurrent = 0;
-        CalculateTarget();
+        aiState = AIState.GoHomeState;
+        Vector3 homeLocation = new Vector3(centerX, 0f, centerZ);
         DeterminePlayerBounds();
+        CalculateTarget(homeLocation);
+    }
+
+    void Awake()
+    {
+        ballHitEventListener = new UnityAction<SquareLocation, ShotType>(BallHitEventHandler);
+        ballBounceEventListener = new UnityAction<Vector3, SquareLocation>(BallBounceEventHandler);
+    }
+
+    void OnEnable()
+    {
+        EventManager.StartListening<BallHitEvent, SquareLocation, ShotType>(ballHitEventListener);
+        EventManager.StartListening<BallBounceEvent, Vector3, SquareLocation>(ballBounceEventListener);
+    }
+    
+    void OnDisable()
+    {
+        EventManager.StopListening<BallHitEvent, SquareLocation, ShotType>(ballHitEventListener);
+        EventManager.StopListening<BallBounceEvent, Vector3, SquareLocation>(ballBounceEventListener);
     }
 
     // Update is called once per frame
     void Update()
     {
-        CalculateTarget();
+
+        if ( stateEnum == StateEnum.outgoingHit || stateEnum == StateEnum.safelyOutOfRange)
+        {
+            aiState = AIState.GoHomeState;
+        }
+        else if ( stateEnum == StateEnum.incomingSmash )
+        {
+          aiState = AIState.GoToSmashLocationState;
+        }
+        else if ( stateEnum == StateEnum.incomingLob  )
+        {
+            aiState = AIState.GoToLobLocationState;
+        }
+        else if ( stateEnum == StateEnum.gotBall  )
+        {
+            stateEnum = StateEnum.outgoingHit;
+  
+            //  aiState = AIState.ThrowBallState;
+        }
+        
+        switch (aiState)
+        {
+            case AIState.GoToLobLocationState:
+                if (!anim.GetBool("IsJumping") && CheckShouldJump())
+                {
+                    linVelCurrent = 0;
+                    anim.SetBool("IsJumping", true);
+                    anim.SetBool("IsTraversing", false);
+                }
+                else
+                {
+                    CalculateTarget(PredictBall());
+                }
+                break;
+            
+            case AIState.GoToSmashLocationState:
+                CalculateTarget(PredictBall());
+                break;
+            
+            case AIState.GoHomeState:
+                Vector3 homeLocation = new Vector3(centerX, 0f, centerZ);
+                CalculateTarget(homeLocation);
+                break;
+            
+            case AIState.ThrowBallState:
+                // Placeholder
+                break;
+                
+        }
+    
     }
 
     void Landed()
@@ -60,21 +159,15 @@ public class EnemyControlScript : MonoBehaviour
         float velx = 0f;
         float vely = 0f;
 
-        if (!anim.GetBool("IsJumping") && CheckShouldJump())
-        {
-            linVelCurrent = 0;
-            anim.SetBool("IsJumping", true);
-            anim.SetBool("IsTraversing", false);
-        }
-        else if (Mathf.Abs(this.transform.position.x - targetLocation.x) > linearTolerance ||
+        if (Mathf.Abs(this.transform.position.x - targetLocation.x) > linearTolerance ||
             Mathf.Abs(this.transform.position.z - targetLocation.z) > linearTolerance)
         {
             anim.SetBool("IsTraversing", true);
 
-            float differenceInAngles = Vector3.Angle(this.transform.forward, targetLocation - this.transform.position);
-            if (differenceInAngles > linearTolerance || 1 == 1)
+            float differenceInAngles = Vector3.Angle(transform.forward, targetLocation - transform.position);
+            if (differenceInAngles > linearTolerance )
             {
-                newRotation = Quaternion.LerpUnclamped(this.transform.rotation, targetRotation, 1.0f);
+                newRotation = Quaternion.LerpUnclamped(transform.rotation, targetRotation, 1.0f);
                 rbody.MoveRotation(newRotation);
             }
 
@@ -106,8 +199,8 @@ public class EnemyControlScript : MonoBehaviour
         {
             anim.SetBool("IsTraversing", false);
 
-            Vector3 toTarget = (targetLocation - this.transform.position).normalized;
-            float turnAngle = Vector3.SignedAngle(this.transform.forward, toTarget, Vector3.up);
+            Vector3 toTarget = (targetLocation - transform.position).normalized;
+            float turnAngle = Vector3.SignedAngle(transform.forward, toTarget, Vector3.up);
             if (Mathf.Abs(turnAngle) > angleTolerance)
             {
                 velx = Mathf.Sign(turnAngle) * 1.0f;
@@ -163,6 +256,41 @@ public class EnemyControlScript : MonoBehaviour
         }
     }
 
+    void BallHitEventHandler(SquareLocation squareNum, ShotType shot)
+    {
+        if (squareNum != currentSquare)
+        {
+            if (shot == ShotType.lob_shot)
+            {
+                stateEnum = StateEnum.incomingLob;
+            }
+            else if (shot == ShotType.smash_shot)
+            {
+                stateEnum = StateEnum.incomingSmash;
+            }
+        }
+    }
+    
+    void BallBounceEventHandler(Vector3 location, SquareLocation squareNum)
+    {
+        if (squareNum != currentSquare)
+        {
+            stateEnum = StateEnum.safelyOutOfRange;
+        }
+        else
+        {
+            stateEnum = StateEnum.incomingLob;
+        }
+    }
+    
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Ball")) 
+        {
+            EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(currentSquare, ShotType.lob_shot);
+        }
+    }
+
     private bool BallNotInQuadrant()
     {
         return true; //placeholder
@@ -172,7 +300,7 @@ public class EnemyControlScript : MonoBehaviour
     {
         Vector3 distanceFromTarget = gameBall.transform.position - rbody.transform.position;
         float magFromTarget = Mathf.Sqrt(Mathf.Pow(distanceFromTarget.z, 2.0f) + Mathf.Pow(distanceFromTarget.x, 2.0f));
-        float lookAheadTime = magFromTarget / linVelMax;
+        float lookAheadTime = Mathf.Clamp(magFromTarget / linVelMax, 0f, 0.1f);
         Vector3 ballPos = gameBall.transform.position;
         Vector3 ballVel = ballRbody.velocity;
         float futureX = ballPos.x + ballVel.x * lookAheadTime;
@@ -182,30 +310,12 @@ public class EnemyControlScript : MonoBehaviour
         return new Vector3(futureX, futureY, futureZ);
     }
 
-    private void CalculateTarget()
+    private void CalculateTarget(Vector3 target)
     {
-
-        if (anim.GetBool("TargetBall"))
-        {
-            targetLocation = PredictBall();
-            targetLocation.x = Mathf.Clamp(targetLocation.x, minimumX, maximumX);
-            targetLocation.z = Mathf.Clamp(targetLocation.z, minimumZ, maximumZ);
-        }
-        else if (anim.GetBool("TargetPlayer"))
-        {
-            targetLocation.x = Mathf.Clamp(player.transform.position.x, minimumX,
-                maximumX);
-            targetLocation.z = Mathf.Clamp(player.transform.position.z, minimumZ,
-                maximumZ);
-        }
-        else
-        {
-            targetLocation.x = centerX;
-            targetLocation.z = centerZ;
-        }
-        targetLocation.y = this.transform.position.y;
-        targetRotation = Quaternion.LookRotation(targetLocation - this.transform.position);
-
+        targetLocation.x = Mathf.Clamp(target.x, minimumX, maximumX);
+        targetLocation.z = Mathf.Clamp(target.z, minimumZ, maximumZ);
+        targetLocation.y = transform.position.y;
+        targetRotation = Quaternion.LookRotation(targetLocation - transform.position);
     }
 
     private void DeterminePlayerBounds()

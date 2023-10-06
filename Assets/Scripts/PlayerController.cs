@@ -4,15 +4,22 @@ public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 10f;
     public Transform ballTransform;
+    public Transform reticleTransform;
     public Camera mainCamera;
     public float maxThrowForce = 20f;
     public float chargeRate = 10f;
+
+    public delegate void HoldingBallChanged(bool isHoldingBall);
+    public static event HoldingBallChanged OnHoldingBallChanged;
 
     private Rigidbody playerRb;
     private Rigidbody ballRb;
     private bool isHoldingBall = false;
     private float chargeAmount = 0f;
     private bool justPickedUp = false;
+    private bool justReleased = false;
+    
+    private SquareLocation currentSquare = SquareLocation.square_one; // Temporary
 
 
     void Start()
@@ -64,20 +71,27 @@ public class PlayerController : MonoBehaviour
         float distanceToBall = Vector3.Distance(transform.position, ballTransform.position);
 
         // Debug message for proximity to ball
-        Debug.Log("Distance to Ball: " + distanceToBall);
+       // Debug.Log("Distance to Ball: " + distanceToBall);
 
-        // Pick up ball on mouse click if not already holding
-        if (!isHoldingBall && Input.GetMouseButtonDown(0) && distanceToBall <= 1.5f)
+        // Pick up ball automatically when in range
+        if (!isHoldingBall && distanceToBall <= 1.5f && !justReleased)
         {
             Debug.Log("Picking up ball");  // Debug
             isHoldingBall = true;
+            OnHoldingBallChanged?.Invoke(isHoldingBall);
             justPickedUp = true;
+        }
+
+        // Reset flag so that player can register a pick up again
+        if (justReleased && distanceToBall > 1.5f)
+        {
+            justReleased = false;
         }
 
         // If holding the ball
         if (isHoldingBall)
         {
-            Debug.Log("Holding ball");  // Debug
+         //   Debug.Log("Holding ball");  // Debug
 
             // Position the ball in front of the player
             ballTransform.position = transform.position + transform.forward;
@@ -86,15 +100,19 @@ public class PlayerController : MonoBehaviour
             chargeAmount += Time.deltaTime * chargeRate;
 
             // Debug message for charge amount
-            Debug.Log("Charge Amount: " + chargeAmount);
+            // Debug.Log("Charge Amount: " + chargeAmount);
 
             // Release and throw ball on mouse click, but not if it was just picked up
-            if (Input.GetMouseButtonDown(0) && !justPickedUp)
+            if (Input.GetButton("Fire1") && !justPickedUp)
             {
-                Debug.Log("Attempting to throw ball");  // Debug
+                justReleased = true;
+                // Debug.Log("Attempting to throw ball");  // Debug
                 float finalThrowForce = Mathf.Clamp(chargeAmount, 0, maxThrowForce);
-                ballRb.velocity = transform.forward * finalThrowForce;
+                Vector3 throwDir = (reticleTransform.position - ballTransform.position).normalized;
+                ballRb.velocity = throwDir * finalThrowForce;
                 ResetBallHandling();
+                EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(currentSquare, ShotType.lob_shot);
+                
             }
 
             // Reset the justPickedUp flag
@@ -106,6 +124,7 @@ public class PlayerController : MonoBehaviour
     void ResetBallHandling()
     {
         isHoldingBall = false;
+        OnHoldingBallChanged?.Invoke(isHoldingBall);
         chargeAmount = 0f;
         justPickedUp = false;
     }

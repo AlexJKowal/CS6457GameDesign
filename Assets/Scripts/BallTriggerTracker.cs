@@ -30,7 +30,7 @@ public class BallTriggerTracker : MonoBehaviour
     void Update()
     {
         // Serve the ball on space press
-        if (Input.GetKeyDown(KeyCode.Space) && !isServed)
+        if (Input.GetButton("Submit") && !isServed)
         {
             ballRb.isKinematic = false;
             isServed = true;
@@ -41,14 +41,14 @@ public class BallTriggerTracker : MonoBehaviour
         {
             Debug.Log($"Game is paused");
         }
-        else if (Input.GetKey(KeyCode.Space) && isServed)
+        else if (Input.GetButton("Submit") && isServed)
         {
             Debug.Log($"Slow-mo activated");
             Time.timeScale = slowMotionFactor;
         }
         else
         {
-            Debug.Log($"Slow-mo deactivated");
+            // Debug.Log($"Slow-mo deactivated");
             Time.timeScale = normalTime;
         }
     }
@@ -83,11 +83,36 @@ public class BallTriggerTracker : MonoBehaviour
 
     void OnCollisionEnter(Collision c)
     {
-
-        if (c.impulse.magnitude > 0.25f)
+        SquareLocation currentSquare;
+        if (c.gameObject.CompareTag("Square1"))
         {
-            EventManager.TriggerEvent<BallBounceEvent, Vector3>(c.contacts[0].point);
+            currentSquare = SquareLocation.square_one;
+        }
+        else if (c.gameObject.CompareTag("Square2"))
+        {
+            currentSquare = SquareLocation.square_two;
+        }
+        else if (c.gameObject.CompareTag("Square3"))
+        {
+            currentSquare = SquareLocation.square_three;
+        }
+        else if (c.gameObject.CompareTag("Square4"))
+        {
+            currentSquare = SquareLocation.square_four;
+        }
+        else
+        {
+            currentSquare = SquareLocation.out_of_square;
+        }
 
+        bool isGroundCollision = c.gameObject.CompareTag("Square1") ||
+                                 c.gameObject.CompareTag("Square2") ||
+                                 c.gameObject.CompareTag("Square3") ||
+                                 c.gameObject.CompareTag("Square4");
+        
+        if (c.impulse.magnitude > 0.25f && isGroundCollision)
+        {
+            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(c.contacts[0].point, currentSquare);
         }
     }
 }

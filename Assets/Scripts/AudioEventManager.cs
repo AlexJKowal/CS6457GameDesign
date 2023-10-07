@@ -10,7 +10,7 @@ public class AudioEventManager : MonoBehaviour
 
     public AudioClip ballBounceAudio;
 
-    private UnityAction<Vector3> ballBounceEventListener;
+    private UnityAction<Vector3, SquareLocation> ballBounceEventListener;
 
 
     void Start()
@@ -26,22 +26,22 @@ public class AudioEventManager : MonoBehaviour
 
     private void Awake()
     {
-        ballBounceEventListener = new UnityAction<Vector3>(ballBounceEventHandler);
+        ballBounceEventListener = new UnityAction<Vector3, SquareLocation>(ballBounceEventHandler);
 
     }
 
     private void OnEnable()
     {
-        EventManager.StartListening<BallBounceEvent, Vector3>(ballBounceEventListener);
+        EventManager.StartListening<BallBounceEvent, Vector3, SquareLocation>(ballBounceEventListener);
     }
 
     private void OnDisable()
     {
-        EventManager.StopListening<BallBounceEvent, Vector3>(ballBounceEventListener);
+        EventManager.StopListening<BallBounceEvent, Vector3, SquareLocation>(ballBounceEventListener);
 
     }
 
-    void ballBounceEventHandler(Vector3 worldPos)
+    void ballBounceEventHandler(Vector3 worldPos, SquareLocation square)
     {
         if (eventSound3DPrefab)
         {

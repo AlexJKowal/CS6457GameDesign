@@ -7,7 +7,7 @@ public class ReticleMovement : MonoBehaviour
 
     public GameObject player;
     public float reticleSpeed = 10f;
-    
+
     private MeshRenderer mesh;
     private Camera mainCam;
     // Start is called before the first frame update
@@ -25,15 +25,15 @@ public class ReticleMovement : MonoBehaviour
     {
         MoveReticle();
     }
-    
+
     private void UpdateReticleState(bool isHoldingBall)
     {
         Debug.Log("is holding: " + isHoldingBall);
         mesh.enabled = isHoldingBall;
     }
-    
+
     void MoveReticle()
-    { 
+    {
         //enable if using mouse
         /*  Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
         float projection;
@@ -46,7 +46,7 @@ public class ReticleMovement : MonoBehaviour
         }
         
         */
-        
+
         // 2nd analogue stick
         float horizontal = Input.GetAxis("Horizontal2");
         float vertical = Input.GetAxis("Vertical2");
@@ -62,12 +62,12 @@ public class ReticleMovement : MonoBehaviour
         }
         else
         {
-            Vector3 differenceVector = ( - transform.position + player.transform.position).normalized;
+            Vector3 differenceVector = (-transform.position + player.transform.position).normalized;
             reticleDir.x = 2 * differenceVector.x;
             reticleDir.y = 0f;
             reticleDir.z = 2 * differenceVector.z;
         }
-        
+
         reticleDir *= reticleSpeed * Time.fixedDeltaTime;
         transform.position += reticleDir;
 

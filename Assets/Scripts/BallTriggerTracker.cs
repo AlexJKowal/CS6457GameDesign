@@ -109,7 +109,7 @@ public class BallTriggerTracker : MonoBehaviour
                                  c.gameObject.CompareTag("Square2") ||
                                  c.gameObject.CompareTag("Square3") ||
                                  c.gameObject.CompareTag("Square4");
-        
+
         if (c.impulse.magnitude > 0.25f && isGroundCollision)
         {
             EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(c.contacts[0].point, currentSquare);

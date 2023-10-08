@@ -4,4 +4,4 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-public class BallBounceEvent: UnityEvent<Vector3, SquareLocation>{}
+public class BallBounceEvent : UnityEvent<Vector3, SquareLocation> { }

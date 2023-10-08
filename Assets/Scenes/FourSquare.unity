@@ -1865,7 +1865,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ff106d72a796d84a8f020e8c0f7d165, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerTransform: {fileID: 0}
+  playerTransform: {fileID: 38141846}
   slowMotionFactor: 0.5
   normalTime: 1
 --- !u!54 &587367987

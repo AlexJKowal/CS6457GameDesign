@@ -99,6 +99,7 @@ public class LocalizedCanvasElement : MonoBehaviour
         if (countDown <= 0)
         {
             EventManager.TriggerEvent<ShotTimeUpEvent, GameObject>(uiTarget);
+            countDown = shotTimer;
         }
         else
         {

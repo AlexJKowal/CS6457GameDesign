@@ -8,4 +8,4 @@ public enum ShotType
     lob_shot,
     smash_shot
 }
-public class BallHitEvent: UnityEvent<SquareLocation, ShotType>{}
+public class BallHitEvent : UnityEvent<SquareLocation, ShotType> { }

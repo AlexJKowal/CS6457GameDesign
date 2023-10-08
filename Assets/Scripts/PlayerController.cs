@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
@@ -18,7 +19,9 @@ public class PlayerController : MonoBehaviour
     private float chargeAmount = 0f;
     private bool justPickedUp = false;
     private bool justReleased = false;
-    
+    private bool quickRelease = false;
+    private UnityAction<GameObject> shotTimeUpEventListener;
+
     private SquareLocation currentSquare = SquareLocation.square_one; // Temporary
 
 
@@ -26,6 +29,21 @@ public class PlayerController : MonoBehaviour
     {
         playerRb = GetComponent<Rigidbody>();
         ballRb = ballTransform.GetComponent<Rigidbody>();
+    }
+
+    void Awake()
+    {
+        shotTimeUpEventListener = new UnityAction<GameObject>(ShotTimeUpEventHandler);
+    }
+
+    void OnEnable()
+    {
+        EventManager.StartListening<ShotTimeUpEvent, GameObject>(shotTimeUpEventListener);
+    }
+
+    void OnDisable()
+    {
+        EventManager.StopListening<ShotTimeUpEvent, GameObject>(shotTimeUpEventListener);
     }
 
     void FixedUpdate()
@@ -71,7 +89,7 @@ public class PlayerController : MonoBehaviour
         float distanceToBall = Vector3.Distance(transform.position, ballTransform.position);
 
         // Debug message for proximity to ball
-       // Debug.Log("Distance to Ball: " + distanceToBall);
+        // Debug.Log("Distance to Ball: " + distanceToBall);
 
         // Pick up ball automatically when in range
         if (!isHoldingBall && distanceToBall <= 1.5f && !justReleased)
@@ -79,6 +97,8 @@ public class PlayerController : MonoBehaviour
             Debug.Log("Picking up ball");  // Debug
             isHoldingBall = true;
             OnHoldingBallChanged?.Invoke(isHoldingBall);
+            EventManager.TriggerEvent<BallCaughtEvent, GameObject>(gameObject);
+
             justPickedUp = true;
         }
 
@@ -91,7 +111,7 @@ public class PlayerController : MonoBehaviour
         // If holding the ball
         if (isHoldingBall)
         {
-         //   Debug.Log("Holding ball");  // Debug
+            //   Debug.Log("Holding ball");  // Debug
 
             // Position the ball in front of the player
             ballTransform.position = transform.position + transform.forward;
@@ -103,7 +123,7 @@ public class PlayerController : MonoBehaviour
             // Debug.Log("Charge Amount: " + chargeAmount);
 
             // Release and throw ball on mouse click, but not if it was just picked up
-            if (Input.GetButton("Fire1") && !justPickedUp)
+            if ((Input.GetButton("Fire1") || quickRelease) && !justPickedUp)
             {
                 justReleased = true;
                 // Debug.Log("Attempting to throw ball");  // Debug
@@ -112,11 +132,20 @@ public class PlayerController : MonoBehaviour
                 ballRb.velocity = throwDir * finalThrowForce;
                 ResetBallHandling();
                 EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(currentSquare, ShotType.lob_shot);
-                
+                quickRelease = false;
+
             }
 
             // Reset the justPickedUp flag
             justPickedUp = false;
+        }
+    }
+
+    void ShotTimeUpEventHandler(GameObject target)
+    {
+        if (target.CompareTag("Player"))
+        {
+            quickRelease = true;
         }
     }
 

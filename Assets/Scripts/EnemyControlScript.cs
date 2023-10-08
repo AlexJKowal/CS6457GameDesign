@@ -13,7 +13,7 @@ public class EnemyControlScript : MonoBehaviour
     public float animSpeed;
     public float linAccelMax;
     public float linVelMax;
-    
+
     public enum AIState
     {
         GetBallState,
@@ -22,11 +22,11 @@ public class EnemyControlScript : MonoBehaviour
         ThrowBallState,
         GoHomeState
     }
-    
+
     public AIState aiState;
-    
+
     private SquareLocation currentSquare = SquareLocation.square_two; // Temporary
-    
+
     private Vector2 trackingSpeeds;
 
     private Animator anim;
@@ -53,7 +53,7 @@ public class EnemyControlScript : MonoBehaviour
     }
 
     private StateEnum stateEnum = StateEnum.safelyOutOfRange;
-    
+
     private UnityAction<SquareLocation, ShotType> ballHitEventListener;
     private UnityAction<Vector3, SquareLocation> ballBounceEventListener;
 
@@ -83,7 +83,7 @@ public class EnemyControlScript : MonoBehaviour
         EventManager.StartListening<BallHitEvent, SquareLocation, ShotType>(ballHitEventListener);
         EventManager.StartListening<BallBounceEvent, Vector3, SquareLocation>(ballBounceEventListener);
     }
-    
+
     void OnDisable()
     {
         EventManager.StopListening<BallHitEvent, SquareLocation, ShotType>(ballHitEventListener);
@@ -94,25 +94,25 @@ public class EnemyControlScript : MonoBehaviour
     void Update()
     {
 
-        if ( stateEnum == StateEnum.outgoingHit || stateEnum == StateEnum.safelyOutOfRange)
+        if (stateEnum == StateEnum.outgoingHit || stateEnum == StateEnum.safelyOutOfRange)
         {
             aiState = AIState.GoHomeState;
         }
-        else if ( stateEnum == StateEnum.incomingSmash )
+        else if (stateEnum == StateEnum.incomingSmash)
         {
-          aiState = AIState.GoToSmashLocationState;
+            aiState = AIState.GoToSmashLocationState;
         }
-        else if ( stateEnum == StateEnum.incomingLob  )
+        else if (stateEnum == StateEnum.incomingLob)
         {
             aiState = AIState.GoToLobLocationState;
         }
-        else if ( stateEnum == StateEnum.gotBall  )
+        else if (stateEnum == StateEnum.gotBall)
         {
             stateEnum = StateEnum.outgoingHit;
-  
+
             //  aiState = AIState.ThrowBallState;
         }
-        
+
         switch (aiState)
         {
             case AIState.GoToLobLocationState:
@@ -127,22 +127,22 @@ public class EnemyControlScript : MonoBehaviour
                     CalculateTarget(PredictBall());
                 }
                 break;
-            
+
             case AIState.GoToSmashLocationState:
                 CalculateTarget(PredictBall());
                 break;
-            
+
             case AIState.GoHomeState:
                 Vector3 homeLocation = new Vector3(centerX, 0f, centerZ);
                 CalculateTarget(homeLocation);
                 break;
-            
+
             case AIState.ThrowBallState:
                 // Placeholder
                 break;
-                
+
         }
-    
+
     }
 
     void Landed()
@@ -165,7 +165,7 @@ public class EnemyControlScript : MonoBehaviour
             anim.SetBool("IsTraversing", true);
 
             float differenceInAngles = Vector3.Angle(transform.forward, targetLocation - transform.position);
-            if (differenceInAngles > linearTolerance )
+            if (differenceInAngles > linearTolerance)
             {
                 newRotation = Quaternion.LerpUnclamped(transform.rotation, targetRotation, 1.0f);
                 rbody.MoveRotation(newRotation);
@@ -270,7 +270,7 @@ public class EnemyControlScript : MonoBehaviour
             }
         }
     }
-    
+
     void BallBounceEventHandler(Vector3 location, SquareLocation squareNum)
     {
         if (squareNum != currentSquare)
@@ -282,10 +282,10 @@ public class EnemyControlScript : MonoBehaviour
             stateEnum = StateEnum.incomingLob;
         }
     }
-    
+
     private void OnCollisionExit(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ball")) 
+        if (collision.gameObject.CompareTag("Ball"))
         {
             EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(currentSquare, ShotType.lob_shot);
         }

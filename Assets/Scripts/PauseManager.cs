@@ -29,7 +29,7 @@ public class PauseManager : MonoBehaviour
     }
     void Update()
     {
-       // print(paused);
+        // print(paused);
         if (Input.GetKeyUp(KeyCode.P))
         {
             if (paused)

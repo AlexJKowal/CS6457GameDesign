@@ -1,8 +1,12 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private Projection _projection;
+    public GameObject ballPrefab;
+    
     public float moveSpeed = 10f;
     public Transform ballTransform;
     public Transform reticleTransform;
@@ -49,6 +53,10 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         MovePlayer();
+        if (!isHoldingBall)
+        {
+            _projection.SimulateTrajectory(ballPrefab, ballTransform.position, ballRb.velocity);    
+        }
     }
 
     void Update()
@@ -133,7 +141,6 @@ public class PlayerController : MonoBehaviour
                 ResetBallHandling();
                 EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(currentSquare, ShotType.lob_shot);
                 quickRelease = false;
-
             }
 
             // Reset the justPickedUp flag

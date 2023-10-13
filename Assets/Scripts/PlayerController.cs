@@ -131,7 +131,7 @@ public class PlayerController : MonoBehaviour
             // Debug.Log("Charge Amount: " + chargeAmount);
 
             // Release and throw ball on mouse click, but not if it was just picked up
-            if ((Input.GetButton("Fire1") || quickRelease) && !justPickedUp)
+            if ((Input.GetButton("Fire1") || Input.GetAxis("JoyFire1") > 0.1f || quickRelease) && !justPickedUp)
             {
                 justReleased = true;
                 // Debug.Log("Attempting to throw ball");  // Debug

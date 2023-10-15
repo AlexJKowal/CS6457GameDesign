@@ -3,6 +3,7 @@ using UnityEngine.Events;
 public class LocalizedCanvasElement : MonoBehaviour
 {
     public GameObject uiTarget;
+    public GameObject subGroup;
     public Canvas canvas;
     public Camera mainCamera;
     public float shotTimer;
@@ -29,7 +30,7 @@ public class LocalizedCanvasElement : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
         shotRectTransform = shotSlider.GetComponent<RectTransform>();
 
-        cg = canvas.GetComponent<CanvasGroup>();
+        cg = subGroup.GetComponent<CanvasGroup>();
         cg.alpha = 0;
         countDown = shotTimer;
 
@@ -80,6 +81,8 @@ public class LocalizedCanvasElement : MonoBehaviour
     {
         cg.alpha = 0;
         startCounter = false;
+        countDown = shotTimer;
+        
 
     }
 

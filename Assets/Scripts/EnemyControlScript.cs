@@ -223,8 +223,9 @@ public class EnemyControlScript : MonoBehaviour
 
     void CheckIfCaught()
     {
+        float distanceToBall = CalculateBallDist();
         // Pick up ball automatically when in range
-        if (distanceToTarget < 1.5f)
+        if (distanceToBall < 2.5f)
         {
             OnHoldingBallChanged?.Invoke(true);
             EventManager.TriggerEvent<BallCaughtEvent, GameObject>(gameObject);
@@ -336,6 +337,11 @@ public class EnemyControlScript : MonoBehaviour
         targetLocation.y = transform.position.y;
         targetRotation = Quaternion.LookRotation(targetLocation - transform.position);
         distanceToTarget = Vector3.Distance(transform.position, targetLocation);
+    }
+    
+    private float CalculateBallDist()
+    {
+        return Vector3.Distance(transform.position, ballRbody.transform.position);
     }
 
     private void DeterminePlayerBounds()

@@ -44,7 +44,7 @@ public class BallTriggerTracker : MonoBehaviour
         else if (Input.GetButton("Submit") && isServed)
         {
             Debug.Log($"Slow-mo activated");
-            Time.timeScale = slowMotionFactor;
+            // Time.timeScale = slowMotionFactor;
         }
         else
         {
@@ -110,7 +110,7 @@ public class BallTriggerTracker : MonoBehaviour
                                  c.gameObject.CompareTag("Square3") ||
                                  c.gameObject.CompareTag("Square4");
 
-        if (c.impulse.magnitude > 0.25f && isGroundCollision)
+        if (c.impulse.magnitude > 0.02f && isGroundCollision)
         {
             EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(c.contacts[0].point, currentSquare);
         }

@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
         if (!isHoldingBall)
         {
-            _projection.SimulateTrajectory(ballPrefab, ballTransform.position, ballRb.velocity);    
+            // _projection.SimulateTrajectory(ballPrefab, ballTransform.position, ballRb.velocity);    
         }
     }
 

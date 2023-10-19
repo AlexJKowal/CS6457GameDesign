@@ -12,6 +12,8 @@ using Random = UnityEngine.Random;
 // https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratic-functions-equations/x2f8bb11595b61c86:quadratic-formula-a1/v/using-the-quadratic-formula#:~:text=The%20quadratic%20formula%20helps%20us,))%2F(2a)%20.
 public class BallThrowing : MonoBehaviour
 {
+    private float[] EASY = {0.5f, 0.7f, 1.2f, 2f};
+    
     private float a = 9.81f / 2;
 
     private Rigidbody ballRb;
@@ -21,6 +23,9 @@ public class BallThrowing : MonoBehaviour
     public List<GameObject> squares;
 
     public GameObject target;
+
+    public String targetSquareTag;
+    public Vector3 targetLocation;
 
     // Based on formula delta_Y = Vi * t + 1/2 * g * t^2
     private float GetFreeFallTime(float initialVelocity, float height)
@@ -71,16 +76,17 @@ public class BallThrowing : MonoBehaviour
         return new Vector3(x, y, z);
     }
 
-    // get a random target position
-    // We can enhance it based on AI Players' position and angles
-    public Vector3 GetRandomTarget(String excludedSquare)
+    public GameObject GetRandomTargetSquare(String excludedSquare)
     {
         // form a new list
         List<GameObject> targetSquares = squares.Where(s => !s.CompareTag(excludedSquare)).ToList(); 
         
         // randomly pick one of three squares
-        GameObject targetSquare = targetSquares[UnityEngine.Random.Range(0, targetSquares.Count)];
-        
+        return targetSquares[UnityEngine.Random.Range(0, targetSquares.Count)];
+    }
+    
+    public Vector3 GetRandomTarget(GameObject targetSquare)
+    {
         // randomly pick the location of position within chosen square
         Vector3 size = targetSquare.GetComponent<MeshRenderer>().bounds.size;
 
@@ -110,7 +116,7 @@ public class BallThrowing : MonoBehaviour
         ballRb = GetComponent<Rigidbody>();
         target.SetActive(false);
 
-        StartCoroutine(ShotTheBall(1f, "Square1"));
+        // StartCoroutine(ShotTheBall(1f, "Square1"));
     }
 
     // Update is called once per frame
@@ -126,11 +132,12 @@ public class BallThrowing : MonoBehaviour
 
     private void OnCollisionExit(Collision other)
     {
-        if (other.gameObject.tag.Contains("Square"))
+        // Ignore where the player is
+        if (other.gameObject.tag.Contains("Square") && !other.gameObject.CompareTag("Square1"))
         {
             // set a corouting
             float time = GetFreeFallTime(ballRb.velocity.y, ballTransform.position.y);
-            StartCoroutine(ShotTheBall(Random.Range(0.1f, 0.3f), other.gameObject.tag));
+            StartCoroutine(ShotTheBall(Random.Range(EASY[0], EASY[1]), other.gameObject.tag));
             
             target.SetActive(false);
         }
@@ -139,12 +146,15 @@ public class BallThrowing : MonoBehaviour
     IEnumerator ShotTheBall(float delay, String currentSquare)
     {
         yield return new WaitForSeconds(delay);
+
+        GameObject targetSquare = GetRandomTargetSquare(currentSquare);
         
-        Vector3 targetPosition = GetRandomTarget(currentSquare);
+        targetSquareTag = targetSquare.tag;
+        targetLocation = GetRandomTarget(targetSquare);
         // Vector3 velocity = GetVelocityToHitTargetGroundBasedOnInitialVerticalVelocity(0f, ballTransform.position,
         //     targetPosition);
 
-        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetPosition, Random.Range(0.5f, 1.2f));
+        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, Random.Range(EASY[2], EASY[3]));
 
         ballRb.isKinematic = true;
         ballRb.velocity = velocity;

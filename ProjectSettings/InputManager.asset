@@ -467,7 +467,7 @@ InputManager:
     snap: 0
     invert: 0
     type: 2
-    axis: 3
+    axis: 4
     joyNum: 1
   - serializedVersion: 3
     m_Name: Horizontal2
@@ -483,7 +483,7 @@ InputManager:
     snap: 0
     invert: 0
     type: 2
-    axis: 2
+    axis: 3
     joyNum: 1
   - serializedVersion: 3
     m_Name: Debug Vertical
@@ -517,4 +517,20 @@ InputManager:
     type: 2
     axis: 5
     joyNum: 0
+  - serializedVersion: 3
+    m_Name: JoyFire1
+    descriptiveName: 
+    descriptiveNegativeName: 
+    negativeButton: 
+    positiveButton: 
+    altNegativeButton: 
+    altPositiveButton: 
+    gravity: 1000
+    dead: 0.001
+    sensitivity: 1000
+    snap: 1
+    invert: 0
+    type: 2
+    axis: 2
+    joyNum: 1
   m_UsePhysicalKeys: 0

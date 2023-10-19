@@ -6,3 +6,9 @@ public enum SquareLocation
     square_four,
     out_of_square
 }
+
+public enum ShotType
+{
+    lob_shot,
+    smash_shot
+}

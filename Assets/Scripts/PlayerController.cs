@@ -1,3 +1,4 @@
+using System.Data;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -39,34 +40,45 @@ public class PlayerController : MonoBehaviour
     private float smashCurrentPeriod = 0f;
     private UnityAction<GameObject> shotTimeUpEventListener;
     private UnityAction<ShotType> shotTypeEventListener;
+    private UnityAction<Vector3, SquareLocation> ballBounceEventListener;
+    private UnityAction<GameObject, BoostType, float, float> statBoostEventListener;
 
     private SquareLocation currentSquare = SquareLocation.square_one; // Temporary
 
     private ShotType shotType = ShotType.lob_shot;
+    
+    private Stats playerStats;
 
 
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
         ballRb = ballTransform.GetComponent<Rigidbody>();
+        playerStats = new Stats { speed = 1, power = 1 };
     }
 
     void Awake()
     {
+        ballBounceEventListener = new UnityAction<Vector3, SquareLocation>(BallBounceEventHandler);
         shotTimeUpEventListener = new UnityAction<GameObject>(ShotTimeUpEventHandler);
         shotTypeEventListener = new UnityAction<ShotType>(ShotTypeEventHandler);
+        statBoostEventListener = new UnityAction<GameObject, BoostType, float, float>(StatBoostEventHandler);
     }
 
     void OnEnable()
     {
+        EventManager.StartListening<BallBounceEvent, Vector3, SquareLocation>(ballBounceEventListener);
         EventManager.StartListening<ShotTimeUpEvent, GameObject>(shotTimeUpEventListener);
         EventManager.StartListening<ShotTypeEvent, ShotType>(shotTypeEventListener);
+        EventManager.StartListening<StatBoostEvent, GameObject, BoostType, float, float>(statBoostEventListener);
     }
 
     void OnDisable()
     {
+        EventManager.StopListening<BallBounceEvent, Vector3, SquareLocation>(ballBounceEventListener);
         EventManager.StopListening<ShotTimeUpEvent, GameObject>(shotTimeUpEventListener);
         EventManager.StopListening<ShotTypeEvent, ShotType>(shotTypeEventListener);
+        EventManager.StopListening<StatBoostEvent, GameObject, BoostType, float, float>(statBoostEventListener);
     }
 
     void FixedUpdate()
@@ -85,8 +97,19 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        UpdateStats();
         RotatePlayer();
         HandleBall();
+    }
+
+    void UpdateStats()
+    {
+        if (playerStats.boostTime <= 0)
+        {
+            playerStats.power = 1;
+            playerStats.speed = 1;
+            playerStats.boostTime = 0;
+        }
     }
 
     void SmashProgression()
@@ -103,8 +126,11 @@ public class PlayerController : MonoBehaviour
         }
         
         smashCurrentPeriod += Time.fixedDeltaTime;
-
-        if (smashCurrentPeriod > 1.0f) // for debug
+    }
+    
+    void BallBounceEventHandler(Vector3 location, SquareLocation square)
+    {
+        if (smashInProgress) // A smash ends when it hits any surface and bounces
         {
             smashCurrentPeriod = 0f;
             ballRb.useGravity = true;
@@ -112,6 +138,30 @@ public class PlayerController : MonoBehaviour
             smashInProgress = false;
 
         }
+    }
+
+    void StatBoostEventHandler(GameObject target, BoostType type, float amount, float duration)
+    {
+        if (type == BoostType.resetAll)
+        {
+            playerStats.power = 1;
+            playerStats.speed = 1;
+            playerStats.boostTime = 0;
+        }
+        else if (target.CompareTag("Player"))
+        {
+            if (type == BoostType.power)
+            {
+                playerStats.power *= amount;
+                playerStats.boostTime = duration;
+            }
+            else if (type == BoostType.speed)
+            {
+                playerStats.speed *= amount;
+                playerStats.boostTime = duration;
+            }
+        }
+        
     }
     
 
@@ -136,7 +186,7 @@ public class PlayerController : MonoBehaviour
         {
             // Convert the direction from local to world space based on camera orientation
             Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
-            moveDir *= moveSpeed * Time.fixedDeltaTime;
+            moveDir *= moveSpeed * playerStats.speed * Time.fixedDeltaTime;
             playerRb.MovePosition(transform.position + moveDir);
         }
     }
@@ -152,10 +202,10 @@ public class PlayerController : MonoBehaviour
         // Pick up ball automatically when in range
         if (!isHoldingBall && distanceToBall <= 1.5f && !justReleased)
         {
-            Debug.Log("Picking up ball");  // Debug
+          
             isHoldingBall = true;
             OnHoldingBallChanged?.Invoke(isHoldingBall);
-            EventManager.TriggerEvent<BallCaughtEvent, GameObject>(gameObject);
+            EventManager.TriggerEvent<BallCaughtEvent, GameObject, SquareLocation>(gameObject, currentSquare);
 
             justPickedUp = true;
         }
@@ -175,7 +225,7 @@ public class PlayerController : MonoBehaviour
             ballTransform.position = transform.position + transform.forward;
 
             // Charge throw while holding the ball
-            chargeAmount += Time.deltaTime * chargeRate;
+            chargeAmount += Time.deltaTime * chargeRate * playerStats.power;
 
             // Debug message for charge amount
             // Debug.Log("Charge Amount: " + chargeAmount);
@@ -206,7 +256,7 @@ public class PlayerController : MonoBehaviour
 
     void PlayerLobShot()
     {
-        float finalThrowForce = Mathf.Clamp(chargeAmount, 0, maxThrowForce);
+        float finalThrowForce = Mathf.Clamp(chargeAmount, 0, maxThrowForce * playerStats.power);
         Vector3 throwDir = (reticleTransform.position - ballTransform.position).normalized;
         throwDir.y = finalThrowForce * lobTweak;
         ballRb.velocity = throwDir * finalThrowForce;
@@ -215,7 +265,7 @@ public class PlayerController : MonoBehaviour
     void PlayerSmashShot()
     {
         smashInProgress = true;
-        maxSmashForce = Mathf.Clamp(chargeAmount, 0, smashMultiplier * maxThrowForce);
+        maxSmashForce = Mathf.Clamp(chargeAmount, 0, smashMultiplier * maxThrowForce * playerStats.power);
         smashDir = (reticleTransform.position - ballTransform.position).normalized;
     }
 
@@ -224,6 +274,7 @@ public class PlayerController : MonoBehaviour
         if (target.CompareTag("Player"))
         {
             quickRelease = true;
+            playerStats.boostTime -= 1;
         }
     }
 

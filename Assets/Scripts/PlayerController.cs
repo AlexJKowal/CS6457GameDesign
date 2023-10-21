@@ -19,8 +19,6 @@ public class PlayerController : MonoBehaviour
     
     public Camera mainCamera;
 
-    public TextMeshPro debugInfo;
-    
     private bool ballServed;
     // Start is called before the first frame update
     void Start()

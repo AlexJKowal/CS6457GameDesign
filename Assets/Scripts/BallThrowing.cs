@@ -28,8 +28,6 @@ public class BallThrowing : MonoBehaviour
     public String targetSquareTag;
     public Vector3 targetLocation;
     
-    public TextMeshPro debugInfo;
-
     // Based on formula delta_Y = Vi * t + 1/2 * g * t^2
     private float GetFreeFallTime(float initialVelocity, float height)
     {
@@ -152,7 +150,7 @@ public class BallThrowing : MonoBehaviour
         
         targetSquareTag = targetSquare.tag;
         ShotTheBallToTargetSquare(targetSquare);
-        debugInfo.text = "Hitting to square " + targetSquare.tag;
+        // debugInfo.text = "Hitting to square " + targetSquare.tag;
     }
 
     public void ShotTheBallToTargetSquare(GameObject targetSquare)

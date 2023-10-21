@@ -52,8 +52,11 @@ public class EnemyControlScript : MonoBehaviour
     private float centerX;
     private float centerZ;
     private Collider homeSquareCollider;
+    private SquareLocation homeSquareEnum;
     private float linVelCurrent;
 
+
+    private Stats playerStats;
     private enum StateEnum
     {
         incomingLob,
@@ -79,8 +82,11 @@ public class EnemyControlScript : MonoBehaviour
         linVelCurrent = 0;
         aiState = AIState.GoHomeState;
         Vector3 homeLocation = new Vector3(centerX, 0f, centerZ);
+        homeSquareEnum = SquareLocation.square_two; // Temporary
         DeterminePlayerBounds();
         CalculateTarget(homeLocation);
+
+        playerStats = new Stats { speed = 1, power = 1 };
     }
 
     void Awake()
@@ -119,8 +125,6 @@ public class EnemyControlScript : MonoBehaviour
         }
         else if (stateEnum == StateEnum.gotBall)
         {
-            //stateEnum = StateEnum.outgoingHit;
-
             aiState = AIState.ThrowBallState;
         }
 
@@ -228,7 +232,7 @@ public class EnemyControlScript : MonoBehaviour
         if (distanceToBall < 2.5f)
         {
             OnHoldingBallChanged?.Invoke(true);
-            EventManager.TriggerEvent<BallCaughtEvent, GameObject>(gameObject);
+            EventManager.TriggerEvent<BallCaughtEvent, GameObject, SquareLocation>(gameObject, homeSquareEnum);
 
             justPickedUp = true;
             stateEnum = StateEnum.gotBall;
@@ -349,7 +353,7 @@ public class EnemyControlScript : MonoBehaviour
         centerX = homeSquareCollider.bounds.center.x;
         centerZ = homeSquareCollider.bounds.center.z;
 
-        if (homeSquare.CompareTag("Square1"))
+        if (homeSquare.CompareTag("square_one"))
         {
             minimumX = (-1) * Mathf.Infinity;
             minimumZ = (-1) * Mathf.Infinity;
@@ -357,7 +361,7 @@ public class EnemyControlScript : MonoBehaviour
             maximumZ = homeSquareCollider.bounds.max.z;
 
         }
-        else if (homeSquare.CompareTag("Square2"))
+        else if (homeSquare.CompareTag("square_two"))
         {
             minimumX = (-1) * Mathf.Infinity;
             minimumZ = homeSquareCollider.bounds.min.z;
@@ -365,14 +369,14 @@ public class EnemyControlScript : MonoBehaviour
             maximumZ = Mathf.Infinity;
 
         }
-        else if (homeSquare.CompareTag("Square3"))
+        else if (homeSquare.CompareTag("square_three"))
         {
             minimumX = homeSquareCollider.bounds.min.x;
             minimumZ = homeSquareCollider.bounds.min.z;
             maximumX = Mathf.Infinity;
             maximumZ = Mathf.Infinity;
         }
-        else if (homeSquare.CompareTag("Square4"))
+        else if (homeSquare.CompareTag("square_four"))
         {
             minimumX = homeSquareCollider.bounds.min.x;
             minimumZ = (-1) * Mathf.Infinity;
@@ -397,9 +401,7 @@ public class EnemyControlScript : MonoBehaviour
      void HandleBall()
     {
         
-        // Reset flag so that player can register a pick up again
-      
-        
+        // Ball moves with NPC movement while handling
         gameBall.transform.position = transform.position + transform.forward;
 
         // Charge throw while holding the ball

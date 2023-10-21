@@ -79,24 +79,27 @@ public class BallTriggerTracker : MonoBehaviour
 
         // Reset the player
         playerTransform.position = initialPlayerPosition;
+        
+        // Invoke a ResetEvent so that other objects can handle their own reset behaviour
+        EventManager.TriggerEvent<ResetEvent>();
     }
 
     void OnCollisionEnter(Collision c)
     {
         SquareLocation currentSquare;
-        if (c.gameObject.CompareTag("Square1"))
+        if (c.gameObject.CompareTag("square_one"))
         {
             currentSquare = SquareLocation.square_one;
         }
-        else if (c.gameObject.CompareTag("Square2"))
+        else if (c.gameObject.CompareTag("square_two"))
         {
             currentSquare = SquareLocation.square_two;
         }
-        else if (c.gameObject.CompareTag("Square3"))
+        else if (c.gameObject.CompareTag("square_three"))
         {
             currentSquare = SquareLocation.square_three;
         }
-        else if (c.gameObject.CompareTag("Square4"))
+        else if (c.gameObject.CompareTag("square_four"))
         {
             currentSquare = SquareLocation.square_four;
         }
@@ -105,10 +108,10 @@ public class BallTriggerTracker : MonoBehaviour
             currentSquare = SquareLocation.out_of_square;
         }
 
-        bool isGroundCollision = c.gameObject.CompareTag("Square1") ||
-                                 c.gameObject.CompareTag("Square2") ||
-                                 c.gameObject.CompareTag("Square3") ||
-                                 c.gameObject.CompareTag("Square4");
+        bool isGroundCollision = c.gameObject.CompareTag("square_one") ||
+                                 c.gameObject.CompareTag("square_two") ||
+                                 c.gameObject.CompareTag("square_three") ||
+                                 c.gameObject.CompareTag("square_four");
 
         if (c.impulse.magnitude > 0.02f && isGroundCollision)
         {

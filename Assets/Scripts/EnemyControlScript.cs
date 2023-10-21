@@ -10,9 +10,20 @@ public class EnemyControlScript : MonoBehaviour
     public GameObject player;
     public GameObject gameBall;
     public GameObject homeSquare;
+    public Transform reticleTransform;
     public float animSpeed;
     public float linAccelMax;
     public float linVelMax;
+    public float maxThrowForce = 20f;
+    public float chargeRate = 2f;
+    
+    public delegate void HoldingBallChanged(bool isHoldingBall);
+    public static event HoldingBallChanged OnHoldingBallChanged;
+    
+    private float chargeAmount = 0f;
+    private bool justPickedUp = false;
+
+    private float distanceToTarget;
 
     public enum AIState
     {
@@ -41,8 +52,11 @@ public class EnemyControlScript : MonoBehaviour
     private float centerX;
     private float centerZ;
     private Collider homeSquareCollider;
+    private SquareLocation homeSquareEnum;
     private float linVelCurrent;
 
+
+    private Stats playerStats;
     private enum StateEnum
     {
         incomingLob,
@@ -68,8 +82,11 @@ public class EnemyControlScript : MonoBehaviour
         linVelCurrent = 0;
         aiState = AIState.GoHomeState;
         Vector3 homeLocation = new Vector3(centerX, 0f, centerZ);
+        homeSquareEnum = SquareLocation.square_two; // Temporary
         DeterminePlayerBounds();
         CalculateTarget(homeLocation);
+
+        playerStats = new Stats { speed = 1, power = 1 };
     }
 
     void Awake()
@@ -93,7 +110,7 @@ public class EnemyControlScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        
         if (stateEnum == StateEnum.outgoingHit || stateEnum == StateEnum.safelyOutOfRange)
         {
             aiState = AIState.GoHomeState;
@@ -108,9 +125,7 @@ public class EnemyControlScript : MonoBehaviour
         }
         else if (stateEnum == StateEnum.gotBall)
         {
-            stateEnum = StateEnum.outgoingHit;
-
-            //  aiState = AIState.ThrowBallState;
+            aiState = AIState.ThrowBallState;
         }
 
         switch (aiState)
@@ -125,11 +140,13 @@ public class EnemyControlScript : MonoBehaviour
                 else
                 {
                     CalculateTarget(PredictBall());
+                    CheckIfCaught();
                 }
                 break;
 
             case AIState.GoToSmashLocationState:
                 CalculateTarget(PredictBall());
+                CheckIfCaught();
                 break;
 
             case AIState.GoHomeState:
@@ -138,11 +155,11 @@ public class EnemyControlScript : MonoBehaviour
                 break;
 
             case AIState.ThrowBallState:
-                // Placeholder
+                CalculateTarget(reticleTransform.position);
+                HandleBall();
                 break;
 
         }
-
     }
 
     void Landed()
@@ -159,8 +176,8 @@ public class EnemyControlScript : MonoBehaviour
         float velx = 0f;
         float vely = 0f;
 
-        if (Mathf.Abs(this.transform.position.x - targetLocation.x) > linearTolerance ||
-            Mathf.Abs(this.transform.position.z - targetLocation.z) > linearTolerance)
+        if (!justPickedUp && (Mathf.Abs(this.transform.position.x - targetLocation.x) > linearTolerance ||
+            Mathf.Abs(this.transform.position.z - targetLocation.z) > linearTolerance))
         {
             anim.SetBool("IsTraversing", true);
 
@@ -198,22 +215,28 @@ public class EnemyControlScript : MonoBehaviour
         else
         {
             anim.SetBool("IsTraversing", false);
-
-            Vector3 toTarget = (targetLocation - transform.position).normalized;
-            float turnAngle = Vector3.SignedAngle(transform.forward, toTarget, Vector3.up);
-            if (Mathf.Abs(turnAngle) > angleTolerance)
-            {
-                velx = Mathf.Sign(turnAngle) * 1.0f;
-            }
-            else
-            {
-                velx = 0;
-            }
+            newRotation = Quaternion.LerpUnclamped(transform.rotation, targetRotation, 1.0f);
+            rbody.MoveRotation(newRotation);
+            
         }
 
         anim.SetFloat("velx", velx);
         anim.SetFloat("vely", vely);
 
+    }
+
+    void CheckIfCaught()
+    {
+        float distanceToBall = CalculateBallDist();
+        // Pick up ball automatically when in range
+        if (distanceToBall < 2.5f)
+        {
+            OnHoldingBallChanged?.Invoke(true);
+            EventManager.TriggerEvent<BallCaughtEvent, GameObject, SquareLocation>(gameObject, homeSquareEnum);
+
+            justPickedUp = true;
+            stateEnum = StateEnum.gotBall;
+        }
     }
 
     void OnAnimatorMove()
@@ -312,10 +335,17 @@ public class EnemyControlScript : MonoBehaviour
 
     private void CalculateTarget(Vector3 target)
     {
+        Vector3.Distance(transform.position, targetLocation);
         targetLocation.x = Mathf.Clamp(target.x, minimumX, maximumX);
         targetLocation.z = Mathf.Clamp(target.z, minimumZ, maximumZ);
         targetLocation.y = transform.position.y;
         targetRotation = Quaternion.LookRotation(targetLocation - transform.position);
+        distanceToTarget = Vector3.Distance(transform.position, targetLocation);
+    }
+    
+    private float CalculateBallDist()
+    {
+        return Vector3.Distance(transform.position, ballRbody.transform.position);
     }
 
     private void DeterminePlayerBounds()
@@ -323,7 +353,7 @@ public class EnemyControlScript : MonoBehaviour
         centerX = homeSquareCollider.bounds.center.x;
         centerZ = homeSquareCollider.bounds.center.z;
 
-        if (homeSquare.CompareTag("Square1"))
+        if (homeSquare.CompareTag("square_one"))
         {
             minimumX = (-1) * Mathf.Infinity;
             minimumZ = (-1) * Mathf.Infinity;
@@ -331,7 +361,7 @@ public class EnemyControlScript : MonoBehaviour
             maximumZ = homeSquareCollider.bounds.max.z;
 
         }
-        else if (homeSquare.CompareTag("Square2"))
+        else if (homeSquare.CompareTag("square_two"))
         {
             minimumX = (-1) * Mathf.Infinity;
             minimumZ = homeSquareCollider.bounds.min.z;
@@ -339,14 +369,14 @@ public class EnemyControlScript : MonoBehaviour
             maximumZ = Mathf.Infinity;
 
         }
-        else if (homeSquare.CompareTag("Square3"))
+        else if (homeSquare.CompareTag("square_three"))
         {
             minimumX = homeSquareCollider.bounds.min.x;
             minimumZ = homeSquareCollider.bounds.min.z;
             maximumX = Mathf.Infinity;
             maximumZ = Mathf.Infinity;
         }
-        else if (homeSquare.CompareTag("Square4"))
+        else if (homeSquare.CompareTag("square_four"))
         {
             minimumX = homeSquareCollider.bounds.min.x;
             minimumZ = (-1) * Mathf.Infinity;
@@ -367,6 +397,35 @@ public class EnemyControlScript : MonoBehaviour
 
         return shouldJump;
     }
+    
+     void HandleBall()
+    {
+        
+        // Ball moves with NPC movement while handling
+        gameBall.transform.position = transform.position + transform.forward;
+
+        // Charge throw while holding the ball
+        chargeAmount += Time.deltaTime * chargeRate;
+
+        bool npcFireDecision = (chargeAmount / maxThrowForce > 0.5);
+        
+
+        // Release and throw ball on mouse click, but not if it was just picked up
+        if (npcFireDecision)
+        {
+                float finalThrowForce = Mathf.Clamp(chargeAmount, 0, maxThrowForce);
+                Vector3 throwDir = (reticleTransform.position - gameBall.transform.position).normalized;
+                ballRbody.velocity = throwDir * finalThrowForce;
+                ResetBallHandling();
+                EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(currentSquare, ShotType.lob_shot);
+                stateEnum = StateEnum.outgoingHit;
+                
+                justPickedUp = false;
+       
+        }
+        
+    }
+
 
     void OnDrawGizmos()
     {
@@ -391,6 +450,13 @@ public class EnemyControlScript : MonoBehaviour
             Gizmos.DrawWireCube(targetLocation + GetComponent<CapsuleCollider>().center, size);
         }
 
+    }
+    
+    void ResetBallHandling()
+    {
+        OnHoldingBallChanged?.Invoke(false);
+        chargeAmount = 0f;
+        justPickedUp = false;
     }
 
 

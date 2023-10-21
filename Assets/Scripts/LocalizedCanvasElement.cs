@@ -3,6 +3,7 @@ using UnityEngine.Events;
 public class LocalizedCanvasElement : MonoBehaviour
 {
     public GameObject uiTarget;
+    public GameObject subGroup;
     public Canvas canvas;
     public Camera mainCamera;
     public float shotTimer;
@@ -16,7 +17,7 @@ public class LocalizedCanvasElement : MonoBehaviour
 
     private CanvasGroup cg;
 
-    private UnityAction<GameObject> ballCaughtEventListener;
+    private UnityAction<GameObject, SquareLocation> ballCaughtEventListener;
     private UnityAction<SquareLocation, ShotType> ballHitEventListener;
 
     private bool startCounter;
@@ -29,7 +30,7 @@ public class LocalizedCanvasElement : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
         shotRectTransform = shotSlider.GetComponent<RectTransform>();
 
-        cg = canvas.GetComponent<CanvasGroup>();
+        cg = subGroup.GetComponent<CanvasGroup>();
         cg.alpha = 0;
         countDown = shotTimer;
 
@@ -42,19 +43,19 @@ public class LocalizedCanvasElement : MonoBehaviour
 
     void Awake()
     {
-        ballCaughtEventListener = new UnityAction<GameObject>(BallCaughtEventHandler);
+        ballCaughtEventListener = new UnityAction<GameObject, SquareLocation>(BallCaughtEventHandler);
         ballHitEventListener = new UnityAction<SquareLocation, ShotType>(BallHitEventHandler);
     }
 
     void OnEnable()
     {
-        EventManager.StartListening<BallCaughtEvent, GameObject>(ballCaughtEventListener);
+        EventManager.StartListening<BallCaughtEvent, GameObject, SquareLocation>(ballCaughtEventListener);
         EventManager.StartListening<BallHitEvent, SquareLocation, ShotType>(ballHitEventListener);
     }
 
     void OnDisable()
     {
-        EventManager.StopListening<BallCaughtEvent, GameObject>(ballCaughtEventListener);
+        EventManager.StopListening<BallCaughtEvent, GameObject, SquareLocation>(ballCaughtEventListener);
         EventManager.StopListening<BallHitEvent, SquareLocation, ShotType>(ballHitEventListener);
     }
 
@@ -67,7 +68,7 @@ public class LocalizedCanvasElement : MonoBehaviour
         }
     }
 
-    void BallCaughtEventHandler(GameObject caughtBy)
+    void BallCaughtEventHandler(GameObject caughtBy, SquareLocation caughtAt)
     {
         if (caughtBy.CompareTag("Player"))
         {
@@ -80,6 +81,8 @@ public class LocalizedCanvasElement : MonoBehaviour
     {
         cg.alpha = 0;
         startCounter = false;
+        countDown = shotTimer;
+        
 
     }
 

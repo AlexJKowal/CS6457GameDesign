@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -26,6 +27,8 @@ public class BallThrowing : MonoBehaviour
 
     public String targetSquareTag;
     public Vector3 targetLocation;
+    
+    public TextMeshPro debugInfo;
 
     // Based on formula delta_Y = Vi * t + 1/2 * g * t^2
     private float GetFreeFallTime(float initialVelocity, float height)
@@ -115,8 +118,6 @@ public class BallThrowing : MonoBehaviour
         collider = GetComponent<SphereCollider>();
         ballRb = GetComponent<Rigidbody>();
         target.SetActive(false);
-
-        // StartCoroutine(ShotTheBall(1f, "Square1"));
     }
 
     // Update is called once per frame
@@ -150,6 +151,12 @@ public class BallThrowing : MonoBehaviour
         GameObject targetSquare = GetRandomTargetSquare(currentSquare);
         
         targetSquareTag = targetSquare.tag;
+        ShotTheBallToTargetSquare(targetSquare);
+        debugInfo.text = "Hitting to square " + targetSquare.tag;
+    }
+
+    public void ShotTheBallToTargetSquare(GameObject targetSquare)
+    {
         targetLocation = GetRandomTarget(targetSquare);
         // Vector3 velocity = GetVelocityToHitTargetGroundBasedOnInitialVerticalVelocity(0f, ballTransform.position,
         //     targetPosition);

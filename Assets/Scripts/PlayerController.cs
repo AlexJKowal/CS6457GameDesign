@@ -1,5 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -9,20 +13,33 @@ public class PlayerController : MonoBehaviour
     
     public float moveSpeed = 10f;
     private Rigidbody playerRb;
-    private Rigidbody ballRb;
-    public Transform ballTransform;
-    public Camera mainCamera;
     
+    public GameObject ball;
+    private Rigidbody ballRb;
+    
+    public Camera mainCamera;
+
+    public TextMeshPro debugInfo;
+    
+    private bool ballServed;
     // Start is called before the first frame update
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
-        ballRb = ballTransform.GetComponent<Rigidbody>();
+        ballRb = ball.GetComponent<Rigidbody>();
+
+        ResetStates();
+    }
+
+    private void Update()
+    {
+        serviceTheBallIfHavent();
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
+        MovePlayer();
         RotatePlayer();
     }
     
@@ -43,12 +60,55 @@ public class PlayerController : MonoBehaviour
         float vertical = Input.GetAxis("Vertical");
         Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
-        if (direction.magnitude >= 0.1f)
+        if (direction.magnitude >= 0.2f)
         {
             // Convert the direction from local to world space based on camera orientation
             Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
             moveDir *= moveSpeed * Time.fixedDeltaTime;
+            moveDir.y = 0;
             playerRb.MovePosition(transform.position + moveDir);
         }
+    }
+
+    void serviceTheBallIfHavent()
+    {
+        if (ballServed)
+        {
+            return;
+        }
+        
+        ball.transform.position = transform.position + transform.forward;
+        if (Input.GetButton("Fire1") || Input.GetAxis("JoyFire1") > 0.1f)
+        {
+            //TODO: hardcoded to the first square, but should be the current square
+            // EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(SquareLocation.square_one, ShotType.lob_shot);
+            
+            // shot the ball
+            ShotTheBall();
+            
+            ballServed = true;
+        }
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Ball"))
+        {
+            ShotTheBall();
+        }
+    }
+
+    private void ShotTheBall()
+    {
+        BallThrowing bt = ball.GetComponent<BallThrowing>();
+        GameObject targetSquare = bt.GetRandomTargetSquare("Square1");
+        bt.ShotTheBallToTargetSquare(targetSquare);
+    }
+
+    void ResetStates()
+    {
+        // hold the ball
+        ballRb.isKinematic = true;
+        ballServed = false;
     }
 }

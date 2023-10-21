@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.17699257, g: 0.22156017, b: 0.3038357, a: 1}
+  m_IndirectSpecularColor: {r: 0.17699224, g: 0.22155946, b: 0.30383444, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1391,6 +1391,10 @@ MonoBehaviour:
   eventSound3DPrefab: {fileID: 6412353246541439006, guid: 1b90f5c630af8034b8fff56969e054b2,
     type: 3}
   ballBounceAudio: {fileID: 8300000, guid: e8933ddc2b219794488ebd224b85f434, type: 3}
+  backgroundMusicArr:
+  - {fileID: 8300000, guid: 71f6bef078a57404eb33c55d3b54a0eb, type: 3}
+  - {fileID: 8300000, guid: 615a0a32aedd5d947b00e88baa13d30d, type: 3}
+  musicEnabled: 0
 --- !u!4 &285994910
 Transform:
   m_ObjectHideFlags: 0

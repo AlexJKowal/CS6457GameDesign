@@ -3,7 +3,9 @@ guid: 3764eddb4cbdb8c4598ec7d86af9c9ba
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - eventSound3DPrefab: {instanceID: 0}
+  - ballBounceAudio: {fileID: 8300000, guid: e8933ddc2b219794488ebd224b85f434, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

@@ -25,7 +25,7 @@ public class ReticleMovement : MonoBehaviour
         mesh = GetComponent<MeshRenderer>();
         if (player.CompareTag("Player"))
         {
-            PlayerController.OnHoldingBallChanged += UpdateReticleState;
+            DeletedPlayerController.OnHoldingBallChanged += UpdateReticleState;
         }
         else
         { 

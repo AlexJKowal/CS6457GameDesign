@@ -126,6 +126,7 @@ public class BallThrowing : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
+        EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point, SquareLocation.square_one);
         target.SetActive(false);
     }
 
@@ -141,7 +142,7 @@ public class BallThrowing : MonoBehaviour
             target.SetActive(false);
         }
     }
-
+    
     IEnumerator ShotTheBall(float delay, String currentSquare)
     {
         yield return new WaitForSeconds(delay);

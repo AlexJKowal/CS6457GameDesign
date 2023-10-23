@@ -19,7 +19,7 @@ public class BallThrowing : MonoBehaviour
 
     private Rigidbody ballRb;
     private Transform ballTransform;
-    private SphereCollider collider;
+    private SphereCollider _collider;
 
     public List<GameObject> squares;
 
@@ -42,7 +42,7 @@ public class BallThrowing : MonoBehaviour
         Vector3 position = ballTransform.position;
         Vector3 velocity= ballRb.velocity;
 
-        float t = GetFreeFallTime(velocity.y, position.y - collider.radius);
+        float t = GetFreeFallTime(velocity.y, position.y - _collider.radius);
         
         if (t > 0.01f)
         {
@@ -56,7 +56,7 @@ public class BallThrowing : MonoBehaviour
     // Pure function to calculate the velocity required to let the ball hit the target ground with given vertical velocity
     public Vector3 GetVelocityToHitTargetGroundBasedOnInitialVerticalVelocity(float initialVerticalVelocity, Vector3 initialPosition, Vector3 targetPosition)
     {
-        float height = initialPosition.y - collider.radius;
+        float height = initialPosition.y - _collider.radius;
         float t = GetFreeFallTime(initialVerticalVelocity, height);
 
         float x = (targetPosition.x - initialPosition.x) / t;
@@ -69,7 +69,7 @@ public class BallThrowing : MonoBehaviour
     public Vector3 GetVelocityToHitTargetGroundBasedOnExpectedTime(Vector3 initialPosition, Vector3 targetPosition, float expectedTime)
     {
         // delta_Y = Vi * t + 1/2 * g * t^2
-        float height = initialPosition.y - collider.radius;
+        float height = initialPosition.y - _collider.radius;
         float y = -(height - a * expectedTime * expectedTime) / expectedTime;
         float x = (targetPosition.x - initialPosition.x) / expectedTime;
         float z = (targetPosition.z - initialPosition.z) / expectedTime;
@@ -113,7 +113,7 @@ public class BallThrowing : MonoBehaviour
         }
         
         ballTransform = this.gameObject.transform;
-        collider = GetComponent<SphereCollider>();
+        _collider = GetComponent<SphereCollider>();
         ballRb = GetComponent<Rigidbody>();
         target.SetActive(false);
     }
@@ -126,43 +126,44 @@ public class BallThrowing : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
-        EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point, SquareLocation.square_one);
-        target.SetActive(false);
-    }
-
-    private void OnCollisionExit(Collision other)
-    {
-        // Ignore where the player is
-        if (other.gameObject.tag.Contains("Square") && !other.gameObject.CompareTag("Square1"))
+        if (other.gameObject.tag.Contains("Square"))
         {
-            // set a corouting
-            float time = GetFreeFallTime(ballRb.velocity.y, ballTransform.position.y);
-            StartCoroutine(ShotTheBall(Random.Range(EASY[0], EASY[1]), other.gameObject.tag));
-            
-            target.SetActive(false);
+            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
+                SquareLocation.square_one);
+        }
+        else
+        {
+            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
+                SquareLocation.square_one);
         }
     }
-    
-    IEnumerator ShotTheBall(float delay, String currentSquare)
-    {
-        yield return new WaitForSeconds(delay);
 
-        GameObject targetSquare = GetRandomTargetSquare(currentSquare);
-        
-        targetSquareTag = targetSquare.tag;
-        ShotTheBallToTargetSquare(targetSquare);
-        // debugInfo.text = "Hitting to square " + targetSquare.tag;
-    }
+    // private void OnCollisionExit(Collision other)
+    // {
+    //     // Ignore where the player is
+    //     if (other.gameObject.tag.Contains("Square") 
+    //         && !other.gameObject.CompareTag("Square1")
+    //         && !other.gameObject.CompareTag("Square2")
+    //         )
+    //     {
+    //         // set a corouting
+    //         float time = GetFreeFallTime(ballRb.velocity.y, ballTransform.position.y);
+    //         StartCoroutine(ShotTheBall(Random.Range(EASY[0], EASY[1]), other.gameObject.tag));
+    //         
+    //         target.SetActive(false);
+    //     }
+    // }
 
     public void ShotTheBallToTargetSquare(GameObject targetSquare)
     {
+        ballRb.isKinematic = true;
+        targetSquareTag = targetSquare.tag;
+        GameManager.updateGameStatus("Ball is heading to " + targetSquareTag);
+        
         targetLocation = GetRandomTarget(targetSquare);
-        // Vector3 velocity = GetVelocityToHitTargetGroundBasedOnInitialVerticalVelocity(0f, ballTransform.position,
-        //     targetPosition);
 
         Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, Random.Range(EASY[2], EASY[3]));
 
-        ballRb.isKinematic = true;
         ballRb.velocity = velocity;
         ballRb.isKinematic = false;
         target.SetActive(true);

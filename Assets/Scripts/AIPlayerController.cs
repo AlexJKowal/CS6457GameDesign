@@ -28,9 +28,13 @@ public class AIPlayerController : MonoBehaviour
         BallThrowing bt = ball.GetComponent<BallThrowing>();
         
         // ball is hitting to our location
-        if (homeSquare.CompareTag(bt.targetSquareTag))
+        if (bt.targetSquareTag!= null && homeSquare.CompareTag(bt.targetSquareTag))
         {
             agent.SetDestination(bt.targetLocation);    
+        }
+        else
+        {
+            agent.SetDestination(homeSquare.transform.position);  
         }
     }
 

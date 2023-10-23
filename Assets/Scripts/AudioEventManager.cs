@@ -12,21 +12,37 @@ public class AudioEventManager : MonoBehaviour
 
     private UnityAction<Vector3, SquareLocation> ballBounceEventListener;
 
+    public AudioClip[] backgroundMusicArr; 
+    private AudioSource backgroundMusicSource;
+
+    public bool musicEnabled;
+
 
     void Start()
     {
-
+        if (musicEnabled && backgroundMusicArr != null && backgroundMusicArr.Length > 0)
+        {
+            PlayBackgroundMusic();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if (!backgroundMusicSource.isPlaying)
+        {
+            PlayBackgroundMusic();
+        }
     }
 
     private void Awake()
     {
         ballBounceEventListener = new UnityAction<Vector3, SquareLocation>(ballBounceEventHandler);
+
+        backgroundMusicSource = gameObject.AddComponent<AudioSource>();
+        backgroundMusicSource.loop = true;
+        backgroundMusicSource.spatialBlend = 0;
+        backgroundMusicSource.volume = 0.1f;
 
     }
 
@@ -55,5 +71,13 @@ public class AudioEventManager : MonoBehaviour
 
             snd.audioSrc.Play();
         }
+    }
+
+    private void PlayBackgroundMusic()
+    {
+        int backgroundMusicIndex = Random.Range(0, backgroundMusicArr.Length);
+
+        backgroundMusicSource.clip = backgroundMusicArr[backgroundMusicIndex];
+        backgroundMusicSource.Play();
     }
 }

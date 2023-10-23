@@ -17,7 +17,7 @@ public class LocalizedCanvasElement : MonoBehaviour
 
     private CanvasGroup cg;
 
-    private UnityAction<GameObject> ballCaughtEventListener;
+    private UnityAction<GameObject, SquareLocation> ballCaughtEventListener;
     private UnityAction<SquareLocation, ShotType> ballHitEventListener;
 
     private bool startCounter;
@@ -43,19 +43,19 @@ public class LocalizedCanvasElement : MonoBehaviour
 
     void Awake()
     {
-        ballCaughtEventListener = new UnityAction<GameObject>(BallCaughtEventHandler);
+        ballCaughtEventListener = new UnityAction<GameObject, SquareLocation>(BallCaughtEventHandler);
         ballHitEventListener = new UnityAction<SquareLocation, ShotType>(BallHitEventHandler);
     }
 
     void OnEnable()
     {
-        EventManager.StartListening<BallCaughtEvent, GameObject>(ballCaughtEventListener);
+        EventManager.StartListening<BallCaughtEvent, GameObject, SquareLocation>(ballCaughtEventListener);
         EventManager.StartListening<BallHitEvent, SquareLocation, ShotType>(ballHitEventListener);
     }
 
     void OnDisable()
     {
-        EventManager.StopListening<BallCaughtEvent, GameObject>(ballCaughtEventListener);
+        EventManager.StopListening<BallCaughtEvent, GameObject, SquareLocation>(ballCaughtEventListener);
         EventManager.StopListening<BallHitEvent, SquareLocation, ShotType>(ballHitEventListener);
     }
 
@@ -68,7 +68,7 @@ public class LocalizedCanvasElement : MonoBehaviour
         }
     }
 
-    void BallCaughtEventHandler(GameObject caughtBy)
+    void BallCaughtEventHandler(GameObject caughtBy, SquareLocation caughtAt)
     {
         if (caughtBy.CompareTag("Player"))
         {

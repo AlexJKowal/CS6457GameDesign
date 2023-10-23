@@ -5,12 +5,14 @@ TagManager:
   serializedVersion: 2
   tags:
   - Ball
-  - Square1
-  - Square2
-  - Square3
-  - Square4
   - OOB
   - Edge
+  - Enemy
+  - SquareMesh
+  - square_one
+  - square_two
+  - square_three
+  - square_four
   - Enemy
   layers:
   - Default

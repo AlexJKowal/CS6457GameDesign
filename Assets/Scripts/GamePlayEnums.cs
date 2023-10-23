@@ -13,6 +13,30 @@ public enum ShotType
     smash_shot
 }
 
+public enum BoostType
+{
+    speed,
+    power,
+    resetAll
+}
+
+public struct Stats
+{
+    public float speed { get; set; }
+    public float power { get; set; }
+    
+    public float boostTime { get; set; }
+
+    public Stats(float speed, float power, float boostTime)
+    {
+        this.speed = speed;
+        this.power = power;
+        this.boostTime = boostTime;
+    }
+    
+}
+}
+
 public enum PrevBounce
 {
     firstshot,

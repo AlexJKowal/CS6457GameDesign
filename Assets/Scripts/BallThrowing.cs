@@ -136,23 +136,13 @@ public class BallThrowing : MonoBehaviour
             EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
                 SquareLocation.square_one);
         }
-    }
 
-    // private void OnCollisionExit(Collision other)
-    // {
-    //     // Ignore where the player is
-    //     if (other.gameObject.tag.Contains("Square") 
-    //         && !other.gameObject.CompareTag("Square1")
-    //         && !other.gameObject.CompareTag("Square2")
-    //         )
-    //     {
-    //         // set a corouting
-    //         float time = GetFreeFallTime(ballRb.velocity.y, ballTransform.position.y);
-    //         StartCoroutine(ShotTheBall(Random.Range(EASY[0], EASY[1]), other.gameObject.tag));
-    //         
-    //         target.SetActive(false);
-    //     }
-    // }
+        if (other.gameObject.CompareTag("Player"))
+        {
+            EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(
+                SquareLocation.square_one, ShotType.lob_shot);
+        }
+    }
 
     public void ShotTheBallToTargetSquare(GameObject targetSquare)
     {

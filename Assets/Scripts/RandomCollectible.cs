@@ -17,7 +17,7 @@ public class RandomCollectible : MonoBehaviour
     private UnityAction<GameObject, SquareLocation> ballCaughtEventListener;
     private UnityAction<SquareLocation, ShotType> ballHitEventListener;
 
-    private bool randomChanceCheck = false;
+    private bool randomChanceCheck = true;
 
     private Vector3 targetLocation;
     
@@ -68,12 +68,6 @@ public class RandomCollectible : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-        if (randomChanceCheck && !collectibleCollider.enabled)
-        {
-            RandomChanceAppearance();
-        }
-
         if (collectibleCollider.enabled)
         {
             SetTarget();
@@ -149,17 +143,14 @@ public class RandomCollectible : MonoBehaviour
             collectibleCollider.enabled = true;
             collectibleRenderer.enabled = true;
         }
-
     }
     
     void BallHitEventHandler(SquareLocation square, ShotType shot)
     {
-        
-        if (square == SquareLocation.square_one) //Change upon adding more npcs to generalize
+        if (square == SquareLocation.square_one && randomChanceCheck) //Change upon adding more npcs to generalize
         {
-            randomChanceCheck = true;
+            RandomChanceAppearance();
         }
-        
     }
     
     void BallCaughtEventHandler(GameObject catcher, SquareLocation square)
@@ -173,11 +164,9 @@ public class RandomCollectible : MonoBehaviour
 
     void ResetCollectable()
     {
-        randomChanceCheck = false; 
         collectibleCollider.enabled = false;
         collectibleRenderer.enabled = false;
         transform.position = originalPosition;
-
     }
 
     void OnCollisionEnter(Collision c)
@@ -190,10 +179,30 @@ public class RandomCollectible : MonoBehaviour
                 defaultBoostAmount,
                 defaultBoostDuration
                 );
-            
+
             ResetCollectable();
+            randomChanceCheck = false;
+            ScalePlayer(c.gameObject, true);
+            StartCoroutine(ShrinkPlayer(c.gameObject, false, 10f));
         }
-        
     }
 
+    private IEnumerator ShrinkPlayer(GameObject player, bool enLarge, float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+        ScalePlayer(player, false);
+        randomChanceCheck = true;
+    }
+
+    private void ScalePlayer(GameObject player, bool enLarge)
+    {
+        if (enLarge)
+        {
+            player.transform.localScale += new Vector3(1f, 1f, 1f);
+        }
+        else
+        {
+            player.transform.localScale -= new Vector3(1f, 1f, 1f);
+        }
+    }
 }

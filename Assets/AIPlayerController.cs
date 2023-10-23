@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DefaultNamespace;
@@ -30,6 +31,16 @@ public class AIPlayerController : MonoBehaviour
         if (homeSquare.CompareTag(bt.targetSquareTag))
         {
             agent.SetDestination(bt.targetLocation);    
+        }
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Ball"))
+        {
+            BallThrowing bt = ball.GetComponent<BallThrowing>();
+            GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
+            bt.ShotTheBallToTargetSquare(targetSquare);
         }
     }
 }

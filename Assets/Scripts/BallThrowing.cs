@@ -126,14 +126,20 @@ public class BallThrowing : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
-        EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point, SquareLocation.square_one);
-        target.SetActive(false);
+        if (other.gameObject.tag.Contains("Square"))
+        {
+            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
+                SquareLocation.square_one);
+        }
     }
 
     private void OnCollisionExit(Collision other)
     {
         // Ignore where the player is
-        if (other.gameObject.tag.Contains("Square") && !other.gameObject.CompareTag("Square1"))
+        if (other.gameObject.tag.Contains("Square") 
+            && !other.gameObject.CompareTag("Square1")
+            && !other.gameObject.CompareTag("Square2")
+            )
         {
             // set a corouting
             float time = GetFreeFallTime(ballRb.velocity.y, ballTransform.position.y);
@@ -148,14 +154,13 @@ public class BallThrowing : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         GameObject targetSquare = GetRandomTargetSquare(currentSquare);
-        
-        targetSquareTag = targetSquare.tag;
         ShotTheBallToTargetSquare(targetSquare);
         // debugInfo.text = "Hitting to square " + targetSquare.tag;
     }
 
     public void ShotTheBallToTargetSquare(GameObject targetSquare)
     {
+        targetSquareTag = targetSquare.tag;
         targetLocation = GetRandomTarget(targetSquare);
         // Vector3 velocity = GetVelocityToHitTargetGroundBasedOnInitialVerticalVelocity(0f, ballTransform.position,
         //     targetPosition);

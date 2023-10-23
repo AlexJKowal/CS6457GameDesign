@@ -11,6 +11,7 @@ TagManager:
   - Square4
   - OOB
   - Edge
+  - Enemy
   layers:
   - Default
   - TransparentFX

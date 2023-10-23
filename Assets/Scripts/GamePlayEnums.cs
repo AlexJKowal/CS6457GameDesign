@@ -12,3 +12,13 @@ public enum ShotType
     lob_shot,
     smash_shot
 }
+
+public enum PrevBounce
+{
+    firstshot,
+    square1,
+    square2,
+    square3,
+    square4,
+    other
+}

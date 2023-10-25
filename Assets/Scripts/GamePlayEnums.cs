@@ -35,11 +35,10 @@ public struct Stats
     }
     
 }
-}
 
 public enum PrevBounce
 {
-    firstshot,
+    firstbounce,
     square1,
     square2,
     square3,

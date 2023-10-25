@@ -14,6 +14,11 @@ TagManager:
   - square_three
   - square_four
   - Enemy
+  - Square2
+  - Square3
+  - Square1
+  - Square4
+  - Ground
   layers:
   - Default
   - TransparentFX

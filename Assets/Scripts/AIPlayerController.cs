@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DefaultNamespace;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(NavMeshAgent))]
 public class AIPlayerController : MonoBehaviour
@@ -30,7 +31,11 @@ public class AIPlayerController : MonoBehaviour
         // ball is hitting to our location
         if (bt.targetSquareTag!= null && homeSquare.CompareTag(bt.targetSquareTag))
         {
-            agent.SetDestination(bt.targetLocation);    
+            Vector3 velocity = ball.GetComponent<Rigidbody>().velocity.normalized;
+            velocity.y = 0;
+            
+            
+            agent.SetDestination(bt.targetLocation + velocity * Random.Range(1.5f, 2.5f));    
         }
         else
         {

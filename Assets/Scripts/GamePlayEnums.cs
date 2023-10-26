@@ -35,13 +35,3 @@ public struct Stats
     }
     
 }
-
-public enum PrevBounce
-{
-    firstbounce,
-    square1,
-    square2,
-    square3,
-    square4,
-    other
-}

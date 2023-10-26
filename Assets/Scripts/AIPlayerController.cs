@@ -10,7 +10,8 @@ using Random = UnityEngine.Random;
 public class AIPlayerController : MonoBehaviour
 {
     private NavMeshAgent agent;
-    
+    private bool coroutineStarted = false;
+
     public AIPlayerState aiState = AIPlayerState.CatchBall;
     public GameObject homeSquare;
     public GameObject ball;
@@ -23,25 +24,33 @@ public class AIPlayerController : MonoBehaviour
             Debug.Log("NavMeshAgent could not be found");
     }
 
-    // Update is called once per frame
     void Update()
     {
         BallThrowing bt = ball.GetComponent<BallThrowing>();
-        
-        // ball is hitting to our location
-        if (bt.targetSquareTag!= null && homeSquare.CompareTag(bt.targetSquareTag))
+
+        if (bt.targetSquareTag != null && homeSquare.CompareTag(bt.targetSquareTag) && !coroutineStarted)
         {
-            Vector3 velocity = ball.GetComponent<Rigidbody>().velocity.normalized;
-            velocity.y = 0;
-            
-            
-            agent.SetDestination(bt.targetLocation + velocity * Random.Range(1.5f, 2.5f));    
+            float delay = Random.Range(0.1f, 0.5f);  // delay between 0.1 to 0.5 seconds
+            Debug.Log("Starting Coroutine with delay: " + delay);
+            StartCoroutine(SetDestinationAfterDelay(bt.targetLocation, delay));
+            coroutineStarted = true;  
         }
-        else
+        else if (bt.targetSquareTag == null || !homeSquare.CompareTag(bt.targetSquareTag))
         {
-            agent.SetDestination(homeSquare.transform.position);  
+            agent.SetDestination(homeSquare.transform.position);
+            coroutineStarted = false; 
         }
     }
+
+    private IEnumerator SetDestinationAfterDelay(Vector3 targetLocation, float delay)
+    {
+        Debug.Log("Coroutine initiated, waiting for " + delay + " seconds");
+        yield return new WaitForSeconds(delay);
+        Debug.Log("Coroutine ended, setting destination");
+        agent.SetDestination(targetLocation);
+        coroutineStarted = false;  
+    }
+
 
     private void OnCollisionEnter(Collision other)
     {

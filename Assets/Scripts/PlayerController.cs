@@ -9,6 +9,9 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Projection _projection;
+
+    public GameObject homeSquare;
+    
     public GameObject ballPrefab;
     
     public float moveSpeed = 10f;
@@ -99,8 +102,8 @@ public class PlayerController : MonoBehaviour
     private void ShotTheBall()
     {
         BallThrowing bt = ball.GetComponent<BallThrowing>();
-        GameObject targetSquare = bt.GetRandomTargetSquare("Square1");
-        bt.ShotTheBallToTargetSquare(targetSquare);
+        GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
+        bt.ShotTheBallToTargetSquare(homeSquare, targetSquare);
     }
 
     void ResetStates()

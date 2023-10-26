@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -23,11 +24,15 @@ public class BallThrowing : MonoBehaviour
 
     public List<GameObject> squares;
 
+    // this is the target indicator where the ball will hit the ground
     public GameObject target;
 
-    public String targetSquareTag;
+    public GameObject _fromSquare;
+    public GameObject _targetSquare;
     public Vector3 targetLocation;
     
+    public int bounced;
+
     // Based on formula delta_Y = Vi * t + 1/2 * g * t^2
     private float GetFreeFallTime(float initialVelocity, float height)
     {
@@ -86,10 +91,10 @@ public class BallThrowing : MonoBehaviour
         return targetSquares[UnityEngine.Random.Range(0, targetSquares.Count)];
     }
     
-    public Vector3 GetRandomTarget(GameObject targetSquare)
+    private Vector3 GetRandomTargetPosition(GameObject square)
     {
         // randomly pick the location of position within chosen square
-        Vector3 size = targetSquare.GetComponent<MeshRenderer>().bounds.size;
+        Vector3 size = square.GetComponent<MeshRenderer>().bounds.size;
 
         float width = size.x;
         float length = size.z;
@@ -98,7 +103,7 @@ public class BallThrowing : MonoBehaviour
         float widthDelta = Math.Max(Math.Min((float)nd.Sample(new System.Random()), width), 0.1f) - width/2;
         float lengthDelta =Math.Max(Math.Min((float)nd.Sample(new System.Random()), width), 0.1f) - width/2;
 
-        Vector3 position = targetSquare.transform.position;
+        Vector3 position = square.transform.position;
         
         return new Vector3(position.x + widthDelta, 0.01f, position.z + lengthDelta);
     }
@@ -144,18 +149,71 @@ public class BallThrowing : MonoBehaviour
         }
     }
 
-    public void ShotTheBallToTargetSquare(GameObject targetSquare)
+    public void OnCollisionExit(Collision other)
+    {
+        Debug.Log("Bounced count is " + bounced);
+        if (bounced == 0)
+        {
+            // only valid when bouncing on target squares
+            if (other.gameObject.tag.Contains("Square"))
+            {
+                if (other.gameObject.CompareTag(_fromSquare.tag))
+                {
+                    GameManager.updateGameResult(other.gameObject);
+                }
+            }
+            // any player touches it will be consider foul or lose on the player
+            else if(other.gameObject.CompareTag("Player")) 
+            {
+                GameManager.updateGameResult(other.gameObject);
+            }
+            else
+            {
+                GameManager.updateGameResult(_fromSquare);
+            }
+        }
+        // bounced once
+        else if(bounced == 1)
+        {
+            // only target square player should touch it
+            if (other.gameObject.CompareTag("Player"))
+            {
+                if (GameObject.ReferenceEquals(other.gameObject, GameManager.getPlayerOnSquare(_targetSquare)))
+                {
+                    GameManager.updateGameResult(other.gameObject);    
+                }
+            }
+            else // fell on outside
+            {
+                GameManager.updateGameResult(_targetSquare);
+            }
+        }
+        
+        bounced++;
+    }
+
+    public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare)
     {
         ballRb.isKinematic = true;
-        targetSquareTag = targetSquare.tag;
-        GameManager.updateGameStatus("Ball is heading to " + targetSquareTag);
+        _fromSquare = fromSquare; 
+        _targetSquare = targetSquare;
+        GameManager.updateGameStatus("Ball is from " + fromSquare.tag + " and heading to " + targetSquare.tag);
         
-        targetLocation = GetRandomTarget(targetSquare);
+        targetLocation = GetRandomTargetPosition(targetSquare);
 
         Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, Random.Range(EASY[2], EASY[3]));
 
         ballRb.velocity = velocity;
         ballRb.isKinematic = false;
+
+        StartCoroutine(ResetBounced());
+        
         target.SetActive(true);
+    }
+
+    IEnumerator ResetBounced()
+    {
+        yield return new WaitForSeconds(1f);
+        bounced = 0;
     }
 }

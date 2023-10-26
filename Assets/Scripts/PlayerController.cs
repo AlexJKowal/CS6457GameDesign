@@ -103,7 +103,7 @@ public class PlayerController : MonoBehaviour
     {
         BallThrowing bt = ball.GetComponent<BallThrowing>();
         GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
-        bt.ShotTheBallToTargetSquare(targetSquare);
+        bt.ShotTheBallToTargetSquare(homeSquare, targetSquare);
     }
 
     void ResetStates()

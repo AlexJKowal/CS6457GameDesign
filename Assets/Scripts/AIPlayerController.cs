@@ -29,7 +29,7 @@ public class AIPlayerController : MonoBehaviour
         BallThrowing bt = ball.GetComponent<BallThrowing>();
         
         // ball is hitting to our location
-        if (bt.targetSquareTag!= null && homeSquare.CompareTag(bt.targetSquareTag))
+        if (bt._targetSquare != null && homeSquare.CompareTag(bt._targetSquare.tag))
         {
             Vector3 velocity = ball.GetComponent<Rigidbody>().velocity.normalized;
             velocity.y = 0;
@@ -49,7 +49,7 @@ public class AIPlayerController : MonoBehaviour
         {
             BallThrowing bt = ball.GetComponent<BallThrowing>();
             GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
-            bt.ShotTheBallToTargetSquare(targetSquare);
+            bt.ShotTheBallToTargetSquare(homeSquare, targetSquare);
         }
     }
 }

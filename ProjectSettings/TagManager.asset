@@ -19,6 +19,7 @@ TagManager:
   - Square1
   - Square4
   - Ground
+  - Grass
   layers:
   - Default
   - TransparentFX

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -50,14 +51,45 @@ public class GameManager : MonoBehaviour
     {
     }
 
+    public static GameObject getPlayerOnSquare(GameObject square)
+    {
+        GameObject[] AI_Players = { Instance.AI_Player1, Instance.AI_Player2, Instance.AI_Player3 };
+        
+        GameObject player = Array.Find(AI_Players, 
+            p => p.GetComponent<AIPlayerController>().homeSquare.CompareTag(square.tag)
+            );
+
+        if (player)
+        {
+            return player;
+        }
+        else
+        {
+            return Instance.humanPlayer;
+        }
+    }
+
     public static void updateGameStatus(String message)
     {
         // just for demostration purpose, better than debug info
         Instance.gameStatus.SetText(message);
     }
 
-    public static void GameResult(String losePlayer)
+    // Can be square or player
+    public static void updateGameResult(GameObject playerOrSquare)
     {
-        
+        GameObject square = playerOrSquare;
+        if (playerOrSquare.tag.Contains("Player"))
+        {
+            if (GameObject.ReferenceEquals(playerOrSquare, Instance.humanPlayer))
+            {
+                square = playerOrSquare.GetComponent<PlayerController>().homeSquare;
+            }
+            else
+            {
+                square = playerOrSquare.GetComponent<AIPlayerController>().homeSquare; 
+            }
+        }
+        updateGameStatus("Player on " + square.tag + " is lost!!!!!!!");
     }
 }

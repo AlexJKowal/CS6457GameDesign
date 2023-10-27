@@ -204,18 +204,31 @@ public class GameManager : MonoBehaviour
     {
         GameObject square = playerOrSquare;
         GameObject relatedPlayer = getPlayerOnSquare(square);
-        string winner = lastTouched.name;
+        string winner = "";
         string loser = relatedPlayer.name;
+        if (lastTouched != null)
+        {
+            winner = getPlayerOnSquare(lastTouched).name;
+        }
+        else
+        {
+            winner = Instance.humanPlayer.name;
+        }
 
-        if (winner.Length > 0)
+        if (loser != winner)
         {
             Debug.Log(winner + " scores!");
             Instance.Scores[winner]++;
-            Instance.onScore?.Invoke();
-            CheckUpdateWinResult();
+        }
+        else if (loser.Length > 0)
+        {
+            Instance.Scores[loser]--;
         }
         
-    }
+        Instance.onScore?.Invoke();
+        CheckUpdateWinResult();
+
+}
 
     public static void CheckUpdateWinResult()
     {

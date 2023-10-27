@@ -6,11 +6,8 @@ public class ReticleMovement : MonoBehaviour
 {
 
     public GameObject player;
-
-    public GameObject human;
-
-    public GameObject opponentSquare; // This should be replaced at some point with a smarter high-level targeting system
-    public float reticleSpeed = 100f;
+    
+    public float reticleSpeed = 10f;
     public float reticleRadius = 3f;
     private MeshRenderer mesh;
     private Camera mainCam;
@@ -18,22 +15,12 @@ public class ReticleMovement : MonoBehaviour
     private Vector3 reticleCenter;
     private float reticleAngle;
 
-    private bool holdingBall;
-    // Start is called before the first frame update
     void Start()
     {
         mesh = GetComponent<MeshRenderer>();
-        if (player.CompareTag("Player"))
-        {
-            DeletedPlayerController.OnHoldingBallChanged += UpdateReticleState;
-        }
-        else
-        { 
-            EnemyControlScript.OnHoldingBallChanged += UpdateReticleState;
-            reticleCenter = human.transform.position;
-        }
+        PlayerController.OnHoldingBallChanged += UpdateReticleState;
         
-        mesh.enabled = false;
+        mesh.enabled = true;
         mainCam = Camera.main;
 
     }
@@ -41,27 +28,12 @@ public class ReticleMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        MoveReticle();
+        CalculatePlayerReticle();
     }
 
     private void UpdateReticleState(bool isHoldingBall)
     {
         mesh.enabled = isHoldingBall;
-        holdingBall = isHoldingBall;
-    }
-
-    void MoveReticle()
-    {
-
-        if (player.CompareTag("Player"))
-        {
-            CalculatePlayerReticle();
-        }
-        else
-        {
-            CalculateNPCReticle();
-        }
-
     }
 
     void CalculatePlayerReticle()
@@ -96,33 +68,11 @@ public class ReticleMovement : MonoBehaviour
         {
             Vector3 differenceVector = (-transform.position + player.transform.position).normalized;
             reticleDir.x = 2 * differenceVector.x;
-            reticleDir.y = 0f;
             reticleDir.z = 2 * differenceVector.z;
         }
 
         reticleDir *= reticleSpeed * Time.fixedDeltaTime;
         transform.position += reticleDir;
     }
-
-    void CalculateNPCReticle()
-    {
-        //Currently will just fire straight at Player 1
-        reticleCenter = human.transform.position;
-        Vector3 reticleDir = new Vector3();
-
-        if (holdingBall)
-        {
-            reticleAngle = (reticleAngle + (Time.fixedDeltaTime * reticleSpeed)) % 360;
-            float rads = reticleAngle * Mathf.Deg2Rad;
-            reticleDir.x = reticleCenter.x + reticleRadius * Mathf.Cos(rads);
-            reticleDir.z = reticleCenter.z + reticleRadius * Mathf.Sin(rads);
-
-        }
-        else
-        {
-            transform.position = player.transform.position;
-        }
-        
-        transform.position = reticleDir;
-    }
+    
 }

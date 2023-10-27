@@ -107,7 +107,7 @@ public class LocalizedCanvasElement : MonoBehaviour
         else
         {
             countDown -= Time.deltaTime / shotTimer;
-            shotRectTransform.sizeDelta = new Vector2((1 - (countDown / shotTimer)) * MAX_WIDTH, shotRectTransform.rect.height);
+            shotRectTransform.sizeDelta = new Vector2((1 - (countDown / shotTimer)) * MAX_WIDTH, 0);
         }
 
     }

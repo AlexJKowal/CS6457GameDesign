@@ -29,6 +29,9 @@ public class BallThrowing : MonoBehaviour
 
     public GameObject _fromSquare;
     public GameObject _targetSquare;
+    
+    private GameObject _currentSquare;
+    private GameObject _lastTouched;
     public Vector3 targetLocation;
     
     public int bounced;
@@ -151,44 +154,43 @@ public class BallThrowing : MonoBehaviour
 
     public void OnCollisionExit(Collision other)
     {
-        Debug.Log("Bounced count is " + bounced);
-        if (bounced == 0)
+        if (other.gameObject.CompareTag("Player"))
         {
-            // only valid when bouncing on target squares
-            if (other.gameObject.tag.Contains("Square"))
+            _currentSquare = null;
+            _lastTouched = other.gameObject;
+            bounced = 0;
+        }
+        else if (other.gameObject.tag.Contains("Square"))
+        {
+            if (_currentSquare == null)
             {
-                if (other.gameObject.CompareTag(_fromSquare.tag))
-                {
-                    GameManager.updateGameResult(other.gameObject);
-                }
+                _currentSquare = other.gameObject;
             }
-            // any player touches it will be consider foul or lose on the player
-            else if(other.gameObject.CompareTag("Player")) 
+            else if (_currentSquare != other.gameObject)
             {
-                GameManager.updateGameResult(other.gameObject);
-            }
-            else
-            {
-                GameManager.updateGameResult(_fromSquare);
+                bounced = 0;
+                _currentSquare = other.gameObject;
             }
         }
-        // bounced once
-        else if(bounced == 1)
+        else
         {
-            // only target square player should touch it
-            if (other.gameObject.CompareTag("Player"))
+            if (_currentSquare != null)
             {
-                if (GameObject.ReferenceEquals(other.gameObject, GameManager.getPlayerOnSquare(_targetSquare)))
-                {
-                    GameManager.updateGameResult(other.gameObject);    
-                }
-            }
-            else // fell on outside
-            {
-                GameManager.updateGameResult(_targetSquare);
+                GameManager.updateScoreResult(_currentSquare, _lastTouched);
+                _lastTouched = null;
+                _currentSquare = null;
+                bounced = -1;
             }
         }
         
+        if (bounced == 1 && _currentSquare != null)
+        {
+            GameManager.updateScoreResult(_currentSquare, _lastTouched);
+            _lastTouched = other.gameObject;
+            _currentSquare = null;
+            bounced = -1;
+        }
+
         bounced++;
     }
 

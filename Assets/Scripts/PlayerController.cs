@@ -5,6 +5,7 @@ using System.Globalization;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
@@ -23,7 +24,23 @@ public class PlayerController : MonoBehaviour
     public Camera mainCamera;
 
     private bool ballServed;
-    // Start is called before the first frame update
+    
+    private UnityAction resetEventListener;
+
+    void Awake()
+    {
+        resetEventListener = new UnityAction(ResetStates);
+    }
+
+    void OnEnable()
+    {
+        EventManager.StartListening<ResetEvent>(resetEventListener);
+    }
+
+    void OnDisable()
+    {
+        EventManager.StopListening<ResetEvent>(resetEventListener);
+    }
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();

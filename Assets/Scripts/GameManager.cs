@@ -17,6 +17,7 @@ public class Level
 public class GameManager : MonoBehaviour
 {
     private static GameManager _instance;
+    public UnityEvent onScore;
 
     public TextMeshPro gameStatus;
 
@@ -24,6 +25,8 @@ public class GameManager : MonoBehaviour
     public GameObject AI_Player1;
     public GameObject AI_Player2;
     public GameObject AI_Player3;
+
+    public GameObject ballObject;
 
     public GameObject square1;
     public GameObject square2;
@@ -35,21 +38,38 @@ public class GameManager : MonoBehaviour
     public GameObject levelCompleteText;
     public GameObject levelLoseText;
     
-    
 
-    public int maxLevel;
+    public int maxLevel = 1;
+
+    public int maxScore = 4;
 
     public int currentLevel = 1;
     private Vector3 originalScale = new Vector3(1f,1f,1f);
     public float popInDuration = 0.5f;
     public AnimationCurve popInCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
     private Dictionary<int, Level> _Levels = new Dictionary<int, Level>();
+
+    private Dictionary<string, int> _Scores = new Dictionary<string, int>();
+    private Dictionary<string, Vector3> _InitialPositions = new Dictionary<string, Vector3>();
   
     public Dictionary<int, Level> Levels
     {
         get { return _Levels; }
         set { _Levels = value; }
     }
+    
+    public Dictionary<string, int> Scores
+    {
+        get { return _Scores; }
+        set { _Scores = value; }
+    }
+    
+    public Dictionary<string, Vector3> InitialPositions
+    {
+        get { return _InitialPositions; }
+        set { _InitialPositions = value; }
+    }
+
     
     public static GameManager Instance
     {
@@ -67,36 +87,18 @@ public class GameManager : MonoBehaviour
         if (_instance == null)
         {
             _instance = this;
-            Debug.Log("initting");
-            Levels.Add(1, new Level
-            {
-                Size = 1,
-                CourtColor = new Color(0.1f, 0.7f, 0.5f, 1.0f),
-                PowerPenalty = 1
-            });
-
-            Levels.Add(2, new Level
-            {
-                Size = 1.5f,
-                CourtColor = new Color(0.1f, 0.5f, 0.5f, 1.0f),
-                PowerPenalty = 0.85f
-            });
-            
+            DontDestroyOnLoad(gameObject);
+            AddLevels();
+            SetInitialScores();
+            SetInitialPositions();
             InitGame();
-            
-           // GameResult("Player 1");
-
-            Debug.Log("Levels added");
-
         }
         else if (_instance != this)
         {
             Destroy(gameObject);
+            return;
         }
 
-        Debug.Log("End of awake");
-        
-        DontDestroyOnLoad(gameObject);
     }
 
     private static void InitGame()
@@ -109,18 +111,9 @@ public class GameManager : MonoBehaviour
         Instance.onLevelLoaded?.Invoke();
     }
 
-    public static void ResetGame()
-    {
-        Scene scene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(scene.name);
-        Instance.onLevelLoaded?.Invoke();
-    }
-
     public IEnumerator TimerCoroutine(float duration, System.Action callback)
     {
-        Debug.Log("time started");
         yield return new WaitForSeconds(duration);
-        Debug.Log("time ended");
         callback?.Invoke();
     }
     
@@ -143,15 +136,19 @@ public class GameManager : MonoBehaviour
 
     private static void DisableText()
     {
-        Debug.Log("setting disabled");
-        Instance.levelCompleteText.SetActive(false);
-        Instance.levelLoseText.SetActive(false);
+        if (Instance.levelCompleteText != null)
+        {
+            Instance.levelCompleteText.SetActive(false);
+        }
+        if (Instance.levelLoseText != null)
+        {
+            Instance.levelLoseText.SetActive(false);
+        }
     }
 
     public static GameObject getPlayerOnSquare(GameObject square)
     {
         GameObject[] AI_Players = { Instance.AI_Player1, Instance.AI_Player2, Instance.AI_Player3 };
-        
         GameObject player = Array.Find(AI_Players, 
             p => p.GetComponent<AIPlayerController>().homeSquare.CompareTag(square.tag)
             );
@@ -181,14 +178,13 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("set complete true");
+            
             Instance.levelCompleteText.SetActive(true);
             Instance.StartCoroutine(Instance.AnimateText(Instance.levelCompleteText, 3f));
-            Debug.Log("done set true");
             Instance.StartCoroutine(Instance.TimerCoroutine(3f, DisableText));
-            Debug.Log("done start coroutine");
             Instance.onLevelComplete?.Invoke();
-            ResetGame();
+            ResetScores();
+            ResetPositions();
         }
     }
     
@@ -198,44 +194,101 @@ public class GameManager : MonoBehaviour
         Instance.StartCoroutine(Instance.AnimateText(Instance.levelLoseText, 3f));
         Instance.StartCoroutine(Instance.TimerCoroutine(3f, DisableText));
         Instance.onLevelComplete?.Invoke();
-        ResetGame();
-        
+        ResetScores();
+        ResetPositions();
+
     }
     
     // Can be square or player
-    public static void updateGameResult(GameObject playerOrSquare)
+    public static void updateScoreResult(GameObject playerOrSquare, GameObject lastTouched)
     {
         GameObject square = playerOrSquare;
-        String winner;
-        if (playerOrSquare.tag.Contains("Player"))
+        GameObject relatedPlayer = getPlayerOnSquare(square);
+        string winner = lastTouched.name;
+        string loser = relatedPlayer.name;
+
+        if (winner.Length > 0)
         {
-            if (GameObject.ReferenceEquals(playerOrSquare, Instance.humanPlayer))
-            {
-                square = playerOrSquare.GetComponent<PlayerController>().homeSquare;
-                winner = "Player";
-
-            }
-            else
-            {
-                square = playerOrSquare.GetComponent<AIPlayerController>().homeSquare;
-                winner = "AI";
-            }
-            GameResult(winner);
+            Debug.Log(winner + " scores!");
+            Instance.Scores[winner]++;
+            Instance.onScore?.Invoke();
+            CheckUpdateWinResult();
         }
-
+        
     }
 
-    public static void GameResult(String winPlayer)
+    public static void CheckUpdateWinResult()
     {
-        Debug.Log("level result call");
-        if (string.Compare(winPlayer, "Player") == 0)
-        {
-            Debug.Log("call lvl");
+        if (Instance.Scores["Player"] >= Instance.maxScore){
             levelUp();
         }
-        else
+        else if (false) //Not currently tracking NPC scores so no current loss condition
         {
             redoLevel();
         }
+        else
+        {
+            ResetPositions();
+        }
+    }
+
+    public void AddLevels()
+    {
+        Levels.Add(1, new Level
+        {
+            Size = 1,
+            CourtColor = new Color(0.1f, 0.7f, 0.5f, 1.0f),
+            PowerPenalty = 1
+        });
+
+        Levels.Add(2, new Level
+        {
+            Size = 1.5f,
+            CourtColor = new Color(0.1f, 0.5f, 0.5f, 1.0f),
+            PowerPenalty = 0.85f
+        });
+    }
+
+    public void SetInitialScores()
+    {
+        Scores.Add("Player", 0);
+        Scores.Add("AI_Player1", 0);
+        Scores.Add("AI_Player2", 0);
+        Scores.Add("AI_Player3", 0);
+    }
+    
+    public static void ResetGame()
+    {
+        Scene scene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(scene.name);
+        Instance.onLevelLoaded?.Invoke();
+    }
+
+    public static void ResetPositions()
+    {
+        EventManager.TriggerEvent<ResetEvent>();
+        Instance.ballObject.transform.position = Instance.InitialPositions["Ball"];
+        Instance.AI_Player1.transform.position = Instance.InitialPositions["AI1"];
+        Instance.AI_Player2.transform.position = Instance.InitialPositions["AI2"];
+        Instance.AI_Player3.transform.position = Instance.InitialPositions["AI3"];
+        Instance.humanPlayer.transform.position = Instance.InitialPositions["Human"];
+    }
+    public static void ResetScores()
+    {
+        Instance.Scores["Player"] = 0;
+        Instance.Scores["AI_Player1"] = 0;
+        Instance.Scores["AI_Player2"] = 0;
+        Instance.Scores["AI_Player3"] = 0;
+        Instance.onScore?.Invoke();
+        
+    }
+
+    public static void SetInitialPositions()
+    {
+        Instance.InitialPositions.Add("Ball", Instance.ballObject.transform.position);
+        Instance.InitialPositions.Add("AI1",  Instance.AI_Player1.transform.position);
+        Instance.InitialPositions.Add("AI2", Instance.AI_Player2.transform.position);
+        Instance.InitialPositions.Add("AI3", Instance.AI_Player3.transform.position);
+        Instance.InitialPositions.Add("Human", Instance.humanPlayer.transform.position);
     }
 }

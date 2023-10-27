@@ -23,7 +23,7 @@ public class PlayerController : MonoBehaviour
     
     public Camera mainCamera;
 
-    private bool ballServed;
+    public bool ballServed;
     
     private UnityAction resetEventListener;
     public delegate void HoldingBallChanged(bool isHoldingBall);
@@ -82,10 +82,8 @@ public class PlayerController : MonoBehaviour
         {
             serviceTheBallIfHavent();
         }
-        else
-        {
-            HandleBall();
-        }
+        HandleBall();
+        
     }
 
     void FixedUpdate()
@@ -159,7 +157,12 @@ public class PlayerController : MonoBehaviour
             if ((Input.GetButton("Fire1") || Input.GetAxis("JoyFire1") > 0.1f || quickRelease) && !justPickedUp)
             {
                 justReleased = true;
-
+                if (!ballServed)
+                {
+                    chargeAmount = maxThrowForce;
+                    ballServed = true;
+                }
+                
                 if (shotType == ShotType.lob_shot)
                 {
                     PlayerLobShot();
@@ -196,7 +199,7 @@ public class PlayerController : MonoBehaviour
             // shot the ball
        //     ShotTheBall();
             
-            ballServed = true;
+          //  ballServed = true;
       //  }
     }
 

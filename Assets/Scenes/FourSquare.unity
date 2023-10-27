@@ -356,7 +356,8 @@ Transform:
   m_LocalPosition: {x: 5, y: 1, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: [{fileID: 994774190}]
+  m_Children:
+  - {fileID: 994774190}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 359.999, z: 0}
@@ -396,6 +397,7 @@ MonoBehaviour:
   moveSpeed: 10
   ball: {fileID: 587367980}
   mainCamera: {fileID: 882842501}
+  isHoldingBall: 0
   smashMultiplier: 1.2
   maxThrowForce: 20
   initialSmashForce: 2
@@ -927,24 +929,6 @@ RectTransform:
   m_AnchoredPosition: {x: -30, y: -200}
   m_SizeDelta: {x: 90, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &131452235
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 131452233}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee22513ee9ec94960b5e513bec465a1a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uiTarget: {fileID: 38141841}
-  subGroup: {fileID: 265266642}
-  canvas: {fileID: 1670523423}
-  mainCamera: {fileID: 882842501}
-  shotTimer: 1
-  shotSlider: {fileID: 1090827516}
 --- !u!114 &131452236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1012,8 +996,8 @@ MonoBehaviour:
   subGroup: {fileID: 265266642}
   canvas: {fileID: 1670523423}
   mainCamera: {fileID: 882842501}
-  shotTimer: 3
-  shotSlider: {fileID: 131452233}
+  shotTimer: 1
+  shotSlider: {fileID: 1090827516}
 --- !u!1 &139608608
 GameObject:
   m_ObjectHideFlags: 0
@@ -2622,6 +2606,7 @@ MonoBehaviour:
   - {fileID: 2066771423}
   - {fileID: 452241234}
   target: {fileID: 1452591887}
+  humanPlayer: {fileID: 38141841}
   _fromSquare: {fileID: 0}
   _targetSquare: {fileID: 0}
   _freeTargeting: 0
@@ -2799,8 +2784,8 @@ MonoBehaviour:
       m_Calls: []
   levelCompleteText: {fileID: 521930095}
   levelLoseText: {fileID: 286202551}
-  maxLevel: 1
-  maxScore: 1
+  maxLevel: 2
+  maxScore: 3
   currentLevel: 1
   popInDuration: 0.5
   popInCurve:

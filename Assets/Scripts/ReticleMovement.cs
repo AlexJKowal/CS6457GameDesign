@@ -39,7 +39,7 @@ public class ReticleMovement : MonoBehaviour
     void CalculatePlayerReticle()
     {
         //enable if using mouse
-        /*  Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
+        Ray ray = mainCam.ScreenPointToRay(Input.mousePosition);
         float projection;
         Plane floor = new Plane(Vector3.up, Vector3.zero);
 
@@ -49,10 +49,10 @@ public class ReticleMovement : MonoBehaviour
             transform.position = reticleDir;
         }
 
-        */
+        
 
         // 2nd analogue stick
-        float horizontal = Input.GetAxis("Horizontal2");
+        /*float horizontal = Input.GetAxis("Horizontal2");
         float vertical = Input.GetAxis("Vertical2");
 
         Vector3 reticleDir = new Vector3();
@@ -73,6 +73,7 @@ public class ReticleMovement : MonoBehaviour
 
         reticleDir *= reticleSpeed * Time.fixedDeltaTime;
         transform.position += reticleDir;
+        */
     }
     
 }

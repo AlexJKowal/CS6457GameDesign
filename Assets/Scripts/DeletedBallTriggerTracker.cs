@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class BallTriggerTracker : MonoBehaviour
+// This file is obsolete.
+public class DeletedBallTriggerTracker : MonoBehaviour
 {
     public Transform playerTransform;  // Reference to the player's Transform
     public float slowMotionFactor = 0.5f;  // Slow-motion speed

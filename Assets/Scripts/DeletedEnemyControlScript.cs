@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class EnemyControlScript : MonoBehaviour
+public class DeletedEnemyControlScript : MonoBehaviour
 {
 
     public GameObject player;

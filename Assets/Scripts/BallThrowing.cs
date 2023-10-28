@@ -27,14 +27,20 @@ public class BallThrowing : MonoBehaviour
     // this is the target indicator where the ball will hit the ground
     public GameObject target;
 
+    public GameObject humanPlayer;
+
     public GameObject _fromSquare;
     public GameObject _targetSquare;
     
     private GameObject _currentSquare;
     private GameObject _lastTouched;
+
+    public bool _freeTargeting;
     public Vector3 targetLocation;
     
     public int bounced;
+
+    private PlayerController pc;
 
     // Based on formula delta_Y = Vi * t + 1/2 * g * t^2
     private float GetFreeFallTime(float initialVelocity, float height)
@@ -119,7 +125,8 @@ public class BallThrowing : MonoBehaviour
         {
             throw new ArgumentException("Need to set Squares");
         }
-        
+
+        pc = humanPlayer.GetComponent<PlayerController>();
         ballTransform = this.gameObject.transform;
         _collider = GetComponent<SphereCollider>();
         ballRb = GetComponent<Rigidbody>();
@@ -134,8 +141,13 @@ public class BallThrowing : MonoBehaviour
 
     private void OnCollisionEnter(Collision other)
     {
+        if (pc.isHoldingBall)
+        {
+            return;
+        }
         if (other.gameObject.tag.Contains("Square"))
         {
+            
             EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
                 SquareLocation.square_one);
         }
@@ -154,6 +166,10 @@ public class BallThrowing : MonoBehaviour
 
     public void OnCollisionExit(Collision other)
     {
+        if (pc.isHoldingBall)
+        {
+            return;
+        }
         if (other.gameObject.CompareTag("Player"))
         {
             _currentSquare = null;
@@ -194,11 +210,31 @@ public class BallThrowing : MonoBehaviour
         bounced++;
     }
 
+    public void ShootTheBallInDirection(Vector3 initVelocity, GameObject fromSquare, GameObject estimateSquare, Vector3 location)
+    {
+        ballRb.isKinematic = true;
+        _fromSquare = fromSquare;
+        _targetSquare = estimateSquare;
+        targetLocation = location;
+        GameManager.updateGameStatus("Ball is from " + fromSquare.tag + " and heading to ???");
+
+        // Jeff: Right now we don't consider the initial force, but this force can be integrated easily to affect the `expectedTime`, shorter time meaning much faster ball speed
+        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, Random.Range(EASY[2], EASY[3]));
+        
+        ballRb.velocity = velocity;
+        ballRb.isKinematic = false;
+        
+        StartCoroutine(ResetBounced());
+        
+        target.SetActive(true);
+    }
+
     public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare)
     {
         ballRb.isKinematic = true;
         _fromSquare = fromSquare; 
         _targetSquare = targetSquare;
+        _freeTargeting = true;
         GameManager.updateGameStatus("Ball is from " + fromSquare.tag + " and heading to " + targetSquare.tag);
         
         targetLocation = GetRandomTargetPosition(targetSquare);
@@ -218,5 +254,6 @@ public class BallThrowing : MonoBehaviour
     {
         yield return new WaitForSeconds(0.3f);
         bounced = 0;
+        _freeTargeting = false;
     }
 }

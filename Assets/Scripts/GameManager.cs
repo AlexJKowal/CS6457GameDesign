@@ -146,6 +146,23 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public static GameObject getTargetSquareBasedOnPosition(Vector3 position)
+    {
+        GameObject[] squares = { Instance.square1, Instance.square2, Instance.square3, Instance.square4 };
+        GameObject square = Array.Find(squares, sq =>
+        {
+            Vector3 size = sq.GetComponent<MeshRenderer>().bounds.size;
+
+            Vector3 sqPosition = sq.transform.position;
+            bool contains = !(Mathf.Abs(sqPosition.x - position.x) > size.x / 2 ||
+                              Mathf.Abs(sqPosition.z - position.z) > size.z / 2);
+            
+            return contains;
+        });
+            
+        return square;
+    }
+
     public static GameObject getPlayerOnSquare(GameObject square)
     {
         GameObject[] AI_Players = { Instance.AI_Player1, Instance.AI_Player2, Instance.AI_Player3 };
@@ -204,18 +221,31 @@ public class GameManager : MonoBehaviour
     {
         GameObject square = playerOrSquare;
         GameObject relatedPlayer = getPlayerOnSquare(square);
-        string winner = lastTouched.name;
+        string winner = "";
         string loser = relatedPlayer.name;
+        if (lastTouched != null)
+        {
+            winner = getPlayerOnSquare(lastTouched).name;
+        }
+        else
+        {
+            winner = Instance.humanPlayer.name;
+        }
 
-        if (winner.Length > 0)
+        if (loser != winner)
         {
             Debug.Log(winner + " scores!");
             Instance.Scores[winner]++;
-            Instance.onScore?.Invoke();
-            CheckUpdateWinResult();
+        }
+        else if (loser.Length > 0)
+        {
+            Instance.Scores[loser]--;
         }
         
-    }
+        Instance.onScore?.Invoke();
+        CheckUpdateWinResult();
+
+}
 
     public static void CheckUpdateWinResult()
     {

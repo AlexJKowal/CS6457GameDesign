@@ -9,8 +9,10 @@ public class AudioEventManager : MonoBehaviour
     public EventSound3D eventSound3DPrefab;
 
     public AudioClip ballBounceAudio;
+    public AudioClip cheeringAudio;
 
     private UnityAction<Vector3, SquareLocation> ballBounceEventListener;
+    private UnityAction<Vector3> cheeringEventListener;
 
     public AudioClip[] backgroundMusicArr; 
     private AudioSource backgroundMusicSource;
@@ -38,6 +40,7 @@ public class AudioEventManager : MonoBehaviour
     private void Awake()
     {
         ballBounceEventListener = new UnityAction<Vector3, SquareLocation>(ballBounceEventHandler);
+        cheeringEventListener = new UnityAction<Vector3>(cheeringEventHandler);
 
         backgroundMusicSource = gameObject.AddComponent<AudioSource>();
         backgroundMusicSource.loop = true;
@@ -49,11 +52,13 @@ public class AudioEventManager : MonoBehaviour
     private void OnEnable()
     {
         EventManager.StartListening<BallBounceEvent, Vector3, SquareLocation>(ballBounceEventListener);
+        EventManager.StartListening<CheeringEvent, Vector3>(cheeringEventListener);
     }
 
     private void OnDisable()
     {
         EventManager.StopListening<BallBounceEvent, Vector3, SquareLocation>(ballBounceEventListener);
+        EventManager.StopListening<CheeringEvent, Vector3>(cheeringEventListener);
 
     }
 
@@ -65,6 +70,21 @@ public class AudioEventManager : MonoBehaviour
             EventSound3D snd = Instantiate(eventSound3DPrefab, worldPos, Quaternion.identity, null);
 
             snd.audioSrc.clip = this.ballBounceAudio;
+
+            snd.audioSrc.minDistance = 50f;
+            snd.audioSrc.maxDistance = 500f;
+
+            snd.audioSrc.Play();
+        }
+    }
+
+    void cheeringEventHandler(Vector3 worldPos)
+    {
+        if (eventSound3DPrefab)
+        {
+            EventSound3D snd = Instantiate(eventSound3DPrefab, worldPos, Quaternion.identity, null);
+
+            snd.audioSrc.clip = this.cheeringAudio;
 
             snd.audioSrc.minDistance = 50f;
             snd.audioSrc.maxDistance = 500f;

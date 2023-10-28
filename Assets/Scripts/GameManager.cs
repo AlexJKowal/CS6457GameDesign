@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour
     public UnityEvent onLevelLoaded;
     public GameObject levelCompleteText;
     public GameObject levelLoseText;
+    public GameObject confettiSystem;
     
 
     public int maxLevel = 1;
@@ -146,6 +147,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private static void DisableConfetti()
+    {
+        if (Instance.confettiSystem != null)
+        {
+            Instance.confettiSystem.SetActive(false);
+        }
+    }
+
     public static GameObject getTargetSquareBasedOnPosition(Vector3 position)
     {
         GameObject[] squares = { Instance.square1, Instance.square2, Instance.square3, Instance.square4 };
@@ -195,10 +204,13 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            
+            EventManager.TriggerEvent<CheeringEvent, Vector3>(Instance.confettiSystem.transform.position);
+            Instance.confettiSystem.SetActive(true);
+
             Instance.levelCompleteText.SetActive(true);
-            Instance.StartCoroutine(Instance.AnimateText(Instance.levelCompleteText, 3f));
-            Instance.StartCoroutine(Instance.TimerCoroutine(3f, DisableText));
+            Instance.StartCoroutine(Instance.AnimateText(Instance.levelCompleteText, 5f));
+            Instance.StartCoroutine(Instance.TimerCoroutine(5f, DisableText));
+            Instance.StartCoroutine(Instance.TimerCoroutine(5f, DisableConfetti));
             Instance.onLevelComplete?.Invoke();
             ResetScores();
             ResetPositions();
@@ -321,4 +333,5 @@ public class GameManager : MonoBehaviour
         Instance.InitialPositions.Add("AI3", Instance.AI_Player3.transform.position);
         Instance.InitialPositions.Add("Human", Instance.humanPlayer.transform.position);
     }
+
 }

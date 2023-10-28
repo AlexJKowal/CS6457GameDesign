@@ -46,9 +46,9 @@ public class ReticleMovement : MonoBehaviour
         if (floor.Raycast(ray, out projection))
         {
             Vector3 reticleDir = ray.GetPoint(projection);
+            
             transform.position = reticleDir;
         }
-
         
 
         // 2nd analogue stick

@@ -210,14 +210,15 @@ public class BallThrowing : MonoBehaviour
         bounced++;
     }
 
-    public void ShootTheBallInDirection(Vector3 velocity, GameObject fromSquare, GameObject estimateSquare, Vector3 location)
+    public void ShootTheBallInDirection(Vector3 initVelocity, GameObject fromSquare, GameObject estimateSquare, Vector3 location)
     {
         ballRb.isKinematic = true;
         _fromSquare = fromSquare;
         _targetSquare = estimateSquare;
+        targetLocation = location;
         GameManager.updateGameStatus("Ball is from " + fromSquare.tag + " and heading to ???");
 
-        targetLocation = location;
+        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, Random.Range(EASY[2], EASY[3]));
         
         ballRb.velocity = velocity;
         ballRb.isKinematic = false;

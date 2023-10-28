@@ -216,25 +216,18 @@ public class PlayerController : MonoBehaviour
         GameObject estimatedTargetSquare = EstimateTarget();
         BallThrowing bt = ball.GetComponent<BallThrowing>();
         //GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
+
+        if (estimatedTargetSquare)
+        {
+            Debug.Log("estimatedTargetSquare: " + estimatedTargetSquare.tag + reticleTransform.position.ToString());    
+        }
         bt.ShootTheBallInDirection(shootingForce, homeSquare, estimatedTargetSquare, reticleTransform.position);
     }
 
     private GameObject EstimateTarget()
     {
-        GameObject rayCastLocation;
-        RaycastHit hit;
-        if (Physics.Raycast(reticleTransform.position, transform.TransformDirection(Vector3.down), out hit, Mathf.Infinity))
-        {
-            rayCastLocation = hit.collider.gameObject;
-        }
-        else
-        {
-            rayCastLocation = homeSquare;
-        }
-        
-        Debug.Log(rayCastLocation.name);
-
-        return rayCastLocation;
+        Debug.Log("reticleTransform.position:" + reticleTransform.position.ToString());
+        return GameManager.getTargetSquareBasedOnPosition(reticleTransform.position);
     }
     
     void PlayerLobShot()

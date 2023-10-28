@@ -215,12 +215,7 @@ public class PlayerController : MonoBehaviour
     {
         GameObject estimatedTargetSquare = EstimateTarget();
         BallThrowing bt = ball.GetComponent<BallThrowing>();
-        //GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
-
-        if (estimatedTargetSquare)
-        {
-            Debug.Log("estimatedTargetSquare: " + estimatedTargetSquare.tag + reticleTransform.position.ToString());    
-        }
+        
         bt.ShootTheBallInDirection(shootingForce, homeSquare, estimatedTargetSquare, reticleTransform.position);
     }
 

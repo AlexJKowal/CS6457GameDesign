@@ -218,6 +218,7 @@ public class BallThrowing : MonoBehaviour
         targetLocation = location;
         GameManager.updateGameStatus("Ball is from " + fromSquare.tag + " and heading to ???");
 
+        // Jeff: Right now we don't consider the initial force, but this force can be integrated easily to affect the `expectedTime`, shorter time meaning much faster ball speed
         Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, Random.Range(EASY[2], EASY[3]));
         
         ballRb.velocity = velocity;

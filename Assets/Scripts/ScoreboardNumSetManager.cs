@@ -30,7 +30,7 @@ public class ScoreboardNumSetManager : MonoBehaviour
         int score = GameManager.Instance.Scores["Player"];
         count10 = (int)Mathf.Floor(score / 10);
         count1 = score % 10;
-        Debug.Log(count1 + "");
+  
         anim1.SetInteger("Count", count1);
         anim10.SetInteger("Count", count10);
     }

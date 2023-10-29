@@ -46,7 +46,7 @@ Taking care of some assets to improve game feels, such as scoreboard, fence and 
 Taking care of PR reviews.
 
 * Cheyenne
-Taking care of audio assets, pause manager and celebration animations etc.
+Taking care of audio assets, pause manager, tutorial, and celebration animations etc.
 Taking care of PR reviews.
 
 * acdowns
@@ -86,7 +86,7 @@ PlayerController.cs, AIPlayerController.cs, BollThrowing.cs, GameManager.cs, Nor
 GameManager.cs, ScoreBoardNumSetManager.cs, PlayerController.cs etc
 
 * Cheyenne
-AudioEventManager.cs, GameManager.cs, EventSound3D.cs, EventManager.cs etc.
+AudioEventManager.cs, GameManager.cs, EventSound3D.cs, EventManager.cs, TutorialManager etc.
 
 * acdowns
 AIPlayerController.cs, ResetRound.cs etc.

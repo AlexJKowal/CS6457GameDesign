@@ -25,15 +25,19 @@ iv. Manifest of which files authored by each teammate:
 
 * Matt
 Did a lot of coding for overall games and human player behaviors
+Taking care of PR reviews.
 
 * Jeff Duan
 Focused on AI player behaviors and ball throwing logic based on newton's law, initialized GameManager etc.
+Taking care of PR reviews.
 
 * AJK
 Taking care of some assets to improve game feels, such as scoreboard, fence and cartoon figures includes their animations
+Taking care of PR reviews.
 
 * Cheyenne
 Taking care of audio assets, pause manager and celebration animations etc.
+Taking care of PR reviews.
 
 * acdowns
 Taking care of scaffolding project and now focusing on isometric camera etc.

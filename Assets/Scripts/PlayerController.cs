@@ -6,6 +6,8 @@ using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -30,6 +32,7 @@ public class PlayerController : MonoBehaviour
     public static event HoldingBallChanged OnHoldingBallChanged;
     private UnityAction<ShotType> shotTypeEventListener;
     private UnityAction<GameObject> shotTimeUpEventListener;
+    private PlayerControls playerControls;
     public bool isHoldingBall = false;
     private bool justPickedUp = false;
     private bool justReleased = false;
@@ -52,6 +55,8 @@ public class PlayerController : MonoBehaviour
         resetEventListener = new UnityAction(ResetStates);
         shotTypeEventListener = new UnityAction<ShotType>(ShotTypeEventHandler);
         shotTimeUpEventListener = new UnityAction<GameObject>(ShotTimeUpEventHandler);
+        playerControls = new PlayerControls();
+        playerControls.PlayerActions.Movement.Enable();
     }
 
     void OnEnable()
@@ -83,12 +88,21 @@ public class PlayerController : MonoBehaviour
             serviceTheBallIfHavent();
         }
         HandleBall();
-        
     }
 
     void FixedUpdate()
     {
-        MovePlayer();
+        Vector2 inputVec = playerControls.PlayerActions.Movement.ReadValue<Vector2>();
+        Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y).normalized;
+
+        if (direction.magnitude >= 0.2f)
+        {
+            // Convert the direction from local to world space based on camera orientation
+            Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
+            moveDir *= moveSpeed * Time.fixedDeltaTime;
+            moveDir.y = 0;
+            playerRb.MovePosition(transform.position + moveDir);
+        }
         RotatePlayer();
         if (smashInProgress)
         {
@@ -107,21 +121,20 @@ public class PlayerController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, angle, 0);
     }
     
-    void MovePlayer()
-    {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
+    //public void MovePlayer(InputAction.CallbackContext value)
+    //{
+    //    Vector2 inputVec = value.ReadValue<Vector2>();
+    //    Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y).normalized;
 
-        if (direction.magnitude >= 0.2f)
-        {
-            // Convert the direction from local to world space based on camera orientation
-            Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
-            moveDir *= moveSpeed * Time.fixedDeltaTime;
-            moveDir.y = 0;
-            playerRb.MovePosition(transform.position + moveDir);
-        }
-    }
+    //    if (direction.magnitude >= 0.2f)
+    //    {
+    //        // Convert the direction from local to world space based on camera orientation
+    //        Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
+    //        moveDir *= moveSpeed * Time.fixedDeltaTime;
+    //        moveDir.y = 0;
+    //        playerRb.MovePosition(transform.position + moveDir);
+    //    }
+    //}
     
     void HandleBall()
     {

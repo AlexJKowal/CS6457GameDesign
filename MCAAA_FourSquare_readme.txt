@@ -24,8 +24,18 @@ iv. Manifest of which files authored by each teammate:
 1. Detail who on the team did what
 
 * Matt
-Did a lot of coding for overall games and human player behaviors
-Taking care of PR reviews.
+- Implemented initial AI behaviour and FSM for ball path prediction, creating different states for handling
+lob and smash shots, picking the ball up and firing it.
+- After transition to NavMeshAgent AI, made updates to AI system and wrote integration-related
+code to pull back in various behaviours like ball location prediction.
+- Implemented game manager functionality related to scoring tracking, level progression,
+resetting game state
+- Implemented per-square ground state change based on ball bouncing behaviour
+- Implemented reticle aiming system
+- Implemented shot clock and associated UI
+- Implemented initial smash shot behaviour
+- Implemented component for dictating appearance of power up collectibles
+- Taking care of PR reviews.
 
 * Jeff Duan
 Focused on AI player behaviors and ball throwing logic based on newton's law, initialized GameManager etc.
@@ -44,8 +54,9 @@ Taking care of scaffolding project and now focusing on isometric camera etc.
 
 
 2. For each team member, list each asset implemented.
-* Matt
-Taken care of reticle/player/AI player assets etc.
+
+* Matt Wallis
+Simple reticle aim asset, basic material swapping for ground squares / OOB plane
 
 * Jeff Duan
 Taken care of ball/squares assets
@@ -63,9 +74,10 @@ take care of Scaffolding the project
 3. Make sure to list C# script files individually so we can confirm
 each team member contributed to code writing
 
-* Matt
-PlayerController.cs, AIPlayerController.cs, BollThrowing.cs, GameManager.cs, EventManager.cs, GroundVisualState.cs
-LocalizedCanvasElement.cs, SwapMaterial.cs, RandomCollectivble.cs, ReticleMovement.cs, SenceLoader.cs etc.
+* Matt Wallis
+PlayerController.cs, AIPlayerController.cs, BallThrowing.cs, GameManager.cs, EventManager.cs, GroundVisualState.cs
+LocalizedCanvasElement.cs, SwapMaterial.cs, RandomCollectible.cs, ReticleMovement.cs, SceneLoader.cs, 
+DeletedEnemyControlScript.cs (contains FSM, but is currently repressed due to in-progress switch to NavMeshAgent)
 
 * Jeff Duan
 PlayerController.cs, AIPlayerController.cs, BollThrowing.cs, GameManager.cs, NormalDistribution.cs, Projection.cs etc.

@@ -42,7 +42,8 @@ Focused on AI player behaviors and ball throwing logic based on newton's law, in
 Taking care of PR reviews.
 
 * AJK
-Taking care of some assets to improve game feels, such as scoreboard, fence and cartoon figures includes their animations
+Taking care of some assets to improve game feels, such as scoreboard, fence and cartoon figures includes their animations.
+Created the Input System for controling character with different control schemes.
 Taking care of PR reviews.
 
 * Cheyenne

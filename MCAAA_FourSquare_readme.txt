@@ -1,4 +1,4 @@
-Game Repo: 
+Game Repo:
 https://github.gatech.edu/mwallis6/cs6457-mcaaa
 
 i. Start scene file
@@ -8,7 +8,7 @@ ii. How to play and what parts of the level to observe technology requirements
 
 * Once start the game, you can use keyboard direction keys or "wsad" to control human players movement
 * During service time, you can use your mouse to control target hit position by hovering your mouse to enemies' square,
-You should see a reticle dot (a tiny black dot) moving with your mouse indicating the target position, 
+You should see a reticle dot (a tiny black dot) moving with your mouse indicating the target position,
 then just click left mouse key to release the ball
 * During the play, you should be able to move your human player, make sure the ball should bounce once before hitting it back
 * There are some minimal scoring and victory screens developed for alpha so far, if you won 3 times you should see them
@@ -17,7 +17,7 @@ iii. Known problem areas
 
 * Games not reset properly after victory
 * Win/Loss sometimes not calculated accurately
-* Multiple Ball collision sounds in some rare scenarios   
+* Multiple Ball collision sounds in some rare scenarios
 * Human Players sometimes lose control when ate the collectives in very rare situations
 
 iv. Manifest of which files authored by each teammate:
@@ -49,8 +49,9 @@ Taking care of PR reviews.
 Taking care of audio assets, pause manager, tutorial, and celebration animations etc.
 Taking care of PR reviews.
 
-* acdowns
-Taking care of scaffolding project and now focusing on isometric camera etc.
+* Carson Downs
+Taking care of scaffolding project, foundational design and layout. Now focusing on creating a dynamic camera,
+game rounds/state management.
 
 
 2. For each team member, list each asset implemented.
@@ -67,8 +68,8 @@ Taken care of fences/scoreboard & cartoon figures and their animations
 * Cheyenne
 Taken care of most audio assets
 
-* acdowns
-take care of Scaffolding the project
+* Carson Downs
+Foundational setup, initial materials and gameobjects. Project scaffold.
 
 
 3. Make sure to list C# script files individually so we can confirm
@@ -76,7 +77,7 @@ each team member contributed to code writing
 
 * Matt Wallis
 PlayerController.cs, AIPlayerController.cs, BallThrowing.cs, GameManager.cs, EventManager.cs, GroundVisualState.cs
-LocalizedCanvasElement.cs, SwapMaterial.cs, RandomCollectible.cs, ReticleMovement.cs, SceneLoader.cs, 
+LocalizedCanvasElement.cs, SwapMaterial.cs, RandomCollectible.cs, ReticleMovement.cs, SceneLoader.cs,
 DeletedEnemyControlScript.cs (contains FSM, but is currently repressed due to in-progress switch to NavMeshAgent)
 
 * Jeff Duan
@@ -88,5 +89,5 @@ GameManager.cs, ScoreBoardNumSetManager.cs, PlayerController.cs etc
 * Cheyenne
 AudioEventManager.cs, GameManager.cs, EventSound3D.cs, EventManager.cs, TutorialManager etc.
 
-* acdowns
-AIPlayerController.cs, ResetRound.cs etc.
+* Carson Downs
+PlayerController.cs, AIPlayerController.cs, ResetRound.cs , BallTriggerTracker.cs

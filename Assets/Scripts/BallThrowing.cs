@@ -210,7 +210,7 @@ public class BallThrowing : MonoBehaviour
         bounced++;
     }
 
-    public void ShootTheBallInDirection(Vector3 initVelocity, GameObject fromSquare, GameObject estimateSquare, Vector3 location)
+    public void ShootTheBallInDirection(float flyingTime, GameObject fromSquare, GameObject estimateSquare, Vector3 location)
     {
         ballRb.isKinematic = true;
         _fromSquare = fromSquare;
@@ -219,7 +219,7 @@ public class BallThrowing : MonoBehaviour
         GameManager.updateGameStatus("Ball is from " + fromSquare.tag + " and heading to ???");
 
         // Jeff: Right now we don't consider the initial force, but this force can be integrated easily to affect the `expectedTime`, shorter time meaning much faster ball speed
-        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, Random.Range(EASY[2], EASY[3]));
+        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, flyingTime);
         
         ballRb.velocity = velocity;
         ballRb.isKinematic = false;

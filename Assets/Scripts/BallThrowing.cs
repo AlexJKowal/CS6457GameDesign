@@ -14,8 +14,6 @@ using Random = UnityEngine.Random;
 // https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratic-functions-equations/x2f8bb11595b61c86:quadratic-formula-a1/v/using-the-quadratic-formula#:~:text=The%20quadratic%20formula%20helps%20us,))%2F(2a)%20.
 public class BallThrowing : MonoBehaviour
 {
-    private float[] EASY = {0.5f, 0.7f, 1.2f, 2f};
-    
     private float a = 9.81f / 2;
 
     private Rigidbody ballRb;
@@ -229,7 +227,7 @@ public class BallThrowing : MonoBehaviour
         target.SetActive(true);
     }
 
-    public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare)
+    public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime)
     {
         ballRb.isKinematic = true;
         _fromSquare = fromSquare; 
@@ -239,7 +237,7 @@ public class BallThrowing : MonoBehaviour
         
         targetLocation = GetRandomTargetPosition(targetSquare);
 
-        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, Random.Range(EASY[2], EASY[3]));
+        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, flyingTime);
 
         ballRb.velocity = velocity;
         ballRb.isKinematic = false;

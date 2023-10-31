@@ -451,7 +451,7 @@ MonoBehaviour:
       - m_Target: {fileID: 38141849}
         m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
         m_MethodName: MovePlayer
-        m_Mode: 1
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -460,8 +460,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: 4e6ba95d-c416-40ff-b04e-a16be6705a46
-    m_ActionName: PlayerActions/Movement[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
+    m_ActionId: 713cd646-3425-4e5b-8a41-97b06c0ca63b
+    m_ActionName: PlayerActions/Movement
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: PlayerActions

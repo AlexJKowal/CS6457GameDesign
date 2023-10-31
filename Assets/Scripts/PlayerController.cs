@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using static UnityEditor.Searcher.SearcherWindow.Alignment;
 using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
@@ -120,11 +121,12 @@ public class PlayerController : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(0, angle, 0);
     }
-    
+
     //public void MovePlayer(InputAction.CallbackContext value)
     //{
-    //    Vector2 inputVec = value.ReadValue<Vector2>();
-    //    Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y).normalized;
+    //    float horizontal = Input.GetAxis("Horizontal");
+    //    float vertical = Input.GetAxis("Vertical");
+    //    Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
 
     //    if (direction.magnitude >= 0.2f)
     //    {
@@ -135,7 +137,7 @@ public class PlayerController : MonoBehaviour
     //        playerRb.MovePosition(transform.position + moveDir);
     //    }
     //}
-    
+
     void HandleBall()
     {
         float distanceToBall = Vector3.Distance(transform.position, ball.transform.position);

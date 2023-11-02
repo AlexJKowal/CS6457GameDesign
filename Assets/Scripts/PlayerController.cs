@@ -174,7 +174,7 @@ public class PlayerController : MonoBehaviour
                 justReleased = true;
                 if (!ballServed)
                 {
-                    chargeAmount = maxThrowForce;
+                    chargeAmount = maxThrowForce/2;
                     ballServed = true;
                 }
                 
@@ -226,12 +226,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ShootTheBall(Vector3 shootingForce)
+    private void ShootTheBall(float shootingForce)
     {
         GameObject estimatedTargetSquare = EstimateTarget();
         BallThrowing bt = ball.GetComponent<BallThrowing>();
+
+        float flyingTime = Math.Max(2f - shootingForce/14f * 1.5f, 0.6f);
         
-        bt.ShootTheBallInDirection(shootingForce, homeSquare, estimatedTargetSquare, reticleTransform.position);
+        // Debug.Log("shootingForce: " + shootingForce + "flyingTime:" + flyingTime);
+        
+        bt.ShootTheBallInDirection(0.5f, homeSquare, estimatedTargetSquare, reticleTransform.position);
     }
 
     private GameObject EstimateTarget()
@@ -243,11 +247,7 @@ public class PlayerController : MonoBehaviour
     void PlayerLobShot()
     {
         float finalThrowForce = Mathf.Clamp(chargeAmount, 0, maxThrowForce);
-        Debug.Log(finalThrowForce);
-        Vector3 throwDir = (reticleTransform.position - ball.transform.position).normalized;
-        throwDir.y *= lobTweak;
-        Debug.Log("final vel of throw: " + throwDir);
-        ShootTheBall(throwDir * finalThrowForce);
+        ShootTheBall(finalThrowForce);
     }
 
     void PlayerSmashShot()

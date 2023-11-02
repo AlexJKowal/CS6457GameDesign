@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     public UnityEvent onScore;
 
     public TextMeshPro gameStatus;
+    public TextMeshPro levelIndicator;
 
     public GameObject humanPlayer;
     public GameObject AI_Player1;
@@ -110,6 +111,8 @@ public class GameManager : MonoBehaviour
         Instance.AI_Player2.GetComponent<AIPlayerController>().homeSquare = Instance.square3;
         Instance.AI_Player3.GetComponent<AIPlayerController>().homeSquare = Instance.square4;
         Instance.onLevelLoaded?.Invoke();
+        
+        Instance.levelIndicator.SetText("Level " + Instance.currentLevel);
     }
 
     public IEnumerator TimerCoroutine(float duration, System.Action callback)
@@ -215,6 +218,8 @@ public class GameManager : MonoBehaviour
             ResetScores();
             ResetPositions();
         }
+        
+        Instance.levelIndicator.SetText("Level " + Instance.currentLevel);
     }
     
     public static void redoLevel()

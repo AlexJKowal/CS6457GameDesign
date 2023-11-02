@@ -14,8 +14,6 @@ using Random = UnityEngine.Random;
 // https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratic-functions-equations/x2f8bb11595b61c86:quadratic-formula-a1/v/using-the-quadratic-formula#:~:text=The%20quadratic%20formula%20helps%20us,))%2F(2a)%20.
 public class BallThrowing : MonoBehaviour
 {
-    private float[] EASY = {0.5f, 0.7f, 1.2f, 2f};
-    
     private float a = 9.81f / 2;
 
     private Rigidbody ballRb;
@@ -145,23 +143,20 @@ public class BallThrowing : MonoBehaviour
         {
             return;
         }
+        
         if (other.gameObject.tag.Contains("Square"))
         {
             
             EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
                 SquareLocation.square_one);
         }
-        else
+        else if(!other.gameObject.CompareTag("Player"))
         {
             EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
                 SquareLocation.square_one);
         }
 
-        if (other.gameObject.CompareTag("Player"))
-        {
-            EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(
-                SquareLocation.square_one, ShotType.lob_shot);
-        }
+        // When play hit the ball, trigger the sound in shot functions instead of using collision
     }
 
     public void OnCollisionExit(Collision other)
@@ -210,7 +205,7 @@ public class BallThrowing : MonoBehaviour
         bounced++;
     }
 
-    public void ShootTheBallInDirection(Vector3 initVelocity, GameObject fromSquare, GameObject estimateSquare, Vector3 location)
+    public void ShootTheBallInDirection(float flyingTime, GameObject fromSquare, GameObject estimateSquare, Vector3 location)
     {
         ballRb.isKinematic = true;
         _fromSquare = fromSquare;
@@ -219,17 +214,20 @@ public class BallThrowing : MonoBehaviour
         GameManager.updateGameStatus("Ball is from " + fromSquare.tag + " and heading to ???");
 
         // Jeff: Right now we don't consider the initial force, but this force can be integrated easily to affect the `expectedTime`, shorter time meaning much faster ball speed
-        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, Random.Range(EASY[2], EASY[3]));
+        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, flyingTime);
         
         ballRb.velocity = velocity;
         ballRb.isKinematic = false;
         
         StartCoroutine(ResetBounced());
         
+        EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(ballTransform.position,
+            SquareLocation.square_one);
+        
         target.SetActive(true);
     }
 
-    public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare)
+    public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime)
     {
         ballRb.isKinematic = true;
         _fromSquare = fromSquare; 
@@ -239,13 +237,16 @@ public class BallThrowing : MonoBehaviour
         
         targetLocation = GetRandomTargetPosition(targetSquare);
 
-        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, Random.Range(EASY[2], EASY[3]));
+        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, flyingTime);
 
         ballRb.velocity = velocity;
         ballRb.isKinematic = false;
 
         // we need to set bounced to zero with slightly delay because collision event triggering order issue
         StartCoroutine(ResetBounced());
+        
+        EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(ballTransform.position,
+            SquareLocation.square_one);
         
         target.SetActive(true);
     }

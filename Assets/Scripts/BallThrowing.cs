@@ -143,23 +143,20 @@ public class BallThrowing : MonoBehaviour
         {
             return;
         }
+        
         if (other.gameObject.tag.Contains("Square"))
         {
             
             EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
                 SquareLocation.square_one);
         }
-        else
+        else if(!other.gameObject.CompareTag("Player"))
         {
             EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
                 SquareLocation.square_one);
         }
 
-        if (other.gameObject.CompareTag("Player"))
-        {
-            EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(
-                SquareLocation.square_one, ShotType.lob_shot);
-        }
+        // When play hit the ball, trigger the sound in shot functions instead of using collision
     }
 
     public void OnCollisionExit(Collision other)
@@ -224,6 +221,9 @@ public class BallThrowing : MonoBehaviour
         
         StartCoroutine(ResetBounced());
         
+        EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(ballTransform.position,
+            SquareLocation.square_one);
+        
         target.SetActive(true);
     }
 
@@ -244,6 +244,9 @@ public class BallThrowing : MonoBehaviour
 
         // we need to set bounced to zero with slightly delay because collision event triggering order issue
         StartCoroutine(ResetBounced());
+        
+        EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(ballTransform.position,
+            SquareLocation.square_one);
         
         target.SetActive(true);
     }

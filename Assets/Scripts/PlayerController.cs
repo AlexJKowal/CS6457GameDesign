@@ -12,7 +12,6 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private Projection _projection;
     public Transform reticleTransform;
     public GameObject homeSquare;
     

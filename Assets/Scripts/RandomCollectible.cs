@@ -200,14 +200,10 @@ public class RandomCollectible : MonoBehaviour
         if (enLarge)
         {
             player.transform.localScale += new Vector3(1f, 1f, 1f);
-            Vector3 position = player.transform.position;
-            player.transform.position = new Vector3(position.x, 0, position.z);
         }
         else
         {
             player.transform.localScale -= new Vector3(1f, 1f, 1f);
-            Vector3 position = player.transform.position;
-            player.transform.position = new Vector3(position.x, 0, position.z);
         }
     }
 }

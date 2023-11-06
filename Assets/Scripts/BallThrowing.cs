@@ -15,7 +15,10 @@ using Random = UnityEngine.Random;
 public class BallThrowing : MonoBehaviour
 {
     private float a = 9.81f / 2;
-
+    
+    [SerializeField] private Projection _projection;
+    public GameObject ballPrefab;
+    
     private Rigidbody ballRb;
     private Transform ballTransform;
     private SphereCollider _collider;
@@ -33,7 +36,6 @@ public class BallThrowing : MonoBehaviour
     private GameObject _currentSquare;
     private GameObject _lastTouched;
 
-    public bool _freeTargeting;
     public Vector3 targetLocation;
     
     public int bounced;
@@ -224,7 +226,7 @@ public class BallThrowing : MonoBehaviour
         EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(ballTransform.position,
             SquareLocation.square_one);
         
-        target.SetActive(true);
+        ShowInstruction();
     }
 
     public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime)
@@ -232,7 +234,6 @@ public class BallThrowing : MonoBehaviour
         ballRb.isKinematic = true;
         _fromSquare = fromSquare; 
         _targetSquare = targetSquare;
-        _freeTargeting = true;
         GameManager.updateGameStatus("Ball is from " + fromSquare.tag + " and heading to " + targetSquare.tag);
         
         targetLocation = GetRandomTargetPosition(targetSquare);
@@ -247,14 +248,23 @@ public class BallThrowing : MonoBehaviour
         
         EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(ballTransform.position,
             SquareLocation.square_one);
-        
-        target.SetActive(true);
+
+        ShowInstruction();
     }
 
     IEnumerator ResetBounced()
     {
         yield return new WaitForSeconds(0.3f);
         bounced = 0;
-        _freeTargeting = false;
+    }
+
+    private void ShowInstruction()
+    {
+        // if level 1, show projection line, we can show target too
+        if (GameManager.Instance.currentLevel == 1)
+        {
+            // _projection.SimulateTrajectory(ballPrefab, ballTransform.position, ballRb.velocity); 
+            target.SetActive(true);
+        }
     }
 }

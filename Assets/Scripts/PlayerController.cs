@@ -97,8 +97,6 @@ public class PlayerController : MonoBehaviour
         Vector2 inputVec = playerControls.PlayerActions.Movement.ReadValue<Vector2>();
         Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y);
 
-        Debug.Log("magnitude " + direction.magnitude);
-        
         if (direction.magnitude >= 0.2f)
         {
             // Convert the direction from local to world space based on camera orientation
@@ -106,7 +104,6 @@ public class PlayerController : MonoBehaviour
             moveDir *= moveSpeed * Time.fixedDeltaTime;
             moveDir.y = 0;
             
-            Debug.Log("moveDir " + moveDir);
             transform.position += moveDir;
             playerRb.angularVelocity = Vector3.zero;
         }

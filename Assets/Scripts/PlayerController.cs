@@ -76,7 +76,9 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
+        
         ballRb = ball.GetComponent<Rigidbody>();
+        
 
         ResetStates();
     }
@@ -93,21 +95,23 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         Vector2 inputVec = playerControls.PlayerActions.Movement.ReadValue<Vector2>();
-        Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y).normalized;
+        Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y);
 
+        Debug.Log("magnitude " + direction.magnitude);
+        
         if (direction.magnitude >= 0.2f)
         {
             // Convert the direction from local to world space based on camera orientation
             Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
             moveDir *= moveSpeed * Time.fixedDeltaTime;
             moveDir.y = 0;
-            playerRb.MovePosition(transform.position + moveDir);
+            
+            Debug.Log("moveDir " + moveDir);
+            transform.position += moveDir;
+            playerRb.angularVelocity = Vector3.zero;
         }
+        
         RotatePlayer();
-        if (smashInProgress)
-        {
-          //  SmashProgression();
-        }
     }
     
     void RotatePlayer()
@@ -217,14 +221,6 @@ public class PlayerController : MonoBehaviour
       //  }
     }
 
-    private void OnCollisionEnter(Collision other)
-    {
-        if (other.gameObject.CompareTag("Ball"))
-        {
-         //   ShotTheBall();
-        }
-    }
-
     private void ShootTheBall(float shootingForce)
     {
         GameObject estimatedTargetSquare = EstimateTarget();
@@ -254,22 +250,6 @@ public class PlayerController : MonoBehaviour
         smashInProgress = true;
         maxSmashForce = Mathf.Clamp(chargeAmount, 0, smashMultiplier * maxThrowForce);
         smashDir = (reticleTransform.position - ball.transform.position).normalized;
-    }
-    
-    void SmashProgression()
-    {
-        
-        if (smashCurrentPeriod == 0)
-        {
-            ballRb.useGravity = false;
-            ballRb.velocity = smashDir * initialSmashForce;
-        }
-        else if (smashCurrentPeriod >= smashTransitionPeriod)
-        {
-            ballRb.velocity = smashDir * maxSmashForce * smashMultiplier;
-        }
-        
-        smashCurrentPeriod += Time.fixedDeltaTime;
     }
     
     void ShotTimeUpEventHandler(GameObject target)

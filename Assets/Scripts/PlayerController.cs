@@ -129,7 +129,12 @@ public class PlayerController : MonoBehaviour
 
     void HandleBall()
     {
-        float distanceToBall = Vector3.Distance(transform.position, ball.transform.position);
+        Vector3 ballPosition = ball.transform.position;
+        Vector3 position = playerRb.ClosestPointOnBounds(ballPosition);
+        
+        // The distance to ball is now optimized to use a closest point from player collider boundary to the ball
+        // So it can handle better if ball is hitting from player's head
+        float distanceToBall = Vector3.Distance(position, ballPosition);
         
         // Pick up ball automatically when in range
         if (!isHoldingBall && distanceToBall <= 1.5f && !justReleased)
@@ -204,22 +209,14 @@ public class PlayerController : MonoBehaviour
 
     private void ShootTheBall(float shootingForce)
     {
-        GameObject estimatedTargetSquare = EstimateTarget();
+        GameObject estimatedTargetSquare = GameManager.getTargetSquareBasedOnPosition(reticleTransform.position);
         BallThrowing bt = ball.GetComponent<BallThrowing>();
 
         float flyingTime = Math.Max(2f - shootingForce/14f * 1.5f, 0.6f);
         
-        // Debug.Log("shootingForce: " + shootingForce + "flyingTime:" + flyingTime);
-        
         bt.ShootTheBallInDirection(0.5f, homeSquare, estimatedTargetSquare, reticleTransform.position);
     }
 
-    private GameObject EstimateTarget()
-    {
-        Debug.Log("reticleTransform.position:" + reticleTransform.position.ToString());
-        return GameManager.getTargetSquareBasedOnPosition(reticleTransform.position);
-    }
-    
     void PlayerLobShot()
     {
         float finalThrowForce = Mathf.Clamp(chargeAmount, 0, maxThrowForce);

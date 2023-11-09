@@ -139,7 +139,7 @@ public class BallThrowing : MonoBehaviour
         UpdateHittingGround();
     }
 
-    private void OnCollisionEnter(Collision other)
+    private void OnCollisionExit(Collision other)
     {
         if (pc.isHoldingBall)
         {
@@ -149,19 +149,20 @@ public class BallThrowing : MonoBehaviour
         if (other.gameObject.tag.Contains("Square"))
         {
             
-            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
+            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(Vector3.zero,
                 SquareLocation.square_one);
         }
         else if(!other.gameObject.CompareTag("Player"))
         {
-            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
+            Debug.Log("ball existing a player");
+            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(Vector3.zero,
                 SquareLocation.square_one);
         }
 
-        // When play hit the ball, trigger the sound in shot functions instead of using collision
+        PreviousWinLoseLogic(other);
     }
 
-    public void OnCollisionExit(Collision other)
+    private void PreviousWinLoseLogic(Collision other)
     {
         if (pc.isHoldingBall)
         {

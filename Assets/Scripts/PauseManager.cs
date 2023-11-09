@@ -15,7 +15,6 @@ public class PauseManager : MonoBehaviour
         _pauseCanvasGroup.interactable = false;
         _pauseCanvasGroup.blocksRaycasts = false;
         _pauseCanvasGroup.alpha = 0;
-        Time.timeScale = 1;
     }
 
     void Update()

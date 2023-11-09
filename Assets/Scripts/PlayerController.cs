@@ -37,14 +37,7 @@ public class PlayerController : MonoBehaviour
     private bool justPickedUp = false;
     private bool justReleased = false;
     private bool quickRelease = false;
-    private bool smashInProgress = false;
-    private Vector3 smashDir;
-    private float smashCurrentPeriod = 0f;
-    public float smashMultiplier = 1.2f;
     public float maxThrowForce = 20f;
-    private float maxSmashForce = 0;
-    public float initialSmashForce = 2f;
-    public float smashTransitionPeriod = 0.25f;
     private float chargeAmount = 0f;
     public float chargeRate = 10f;
     public float lobTweak = 1f;
@@ -178,11 +171,6 @@ public class PlayerController : MonoBehaviour
                 {
                     PlayerLobShot();
                 }
-                else if (shotType == ShotType.smash_shot)
-                {
-                    //PlayerSmashShot();
-                    PlayerLobShot();
-                }
                 
                 ResetBallHandling();
                 EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(SquareLocation.square_one, shotType);
@@ -236,13 +224,6 @@ public class PlayerController : MonoBehaviour
     {
         float finalThrowForce = Mathf.Clamp(chargeAmount, 0, maxThrowForce);
         ShootTheBall(finalThrowForce);
-    }
-
-    void PlayerSmashShot()
-    {
-        smashInProgress = true;
-        maxSmashForce = Mathf.Clamp(chargeAmount, 0, smashMultiplier * maxThrowForce);
-        smashDir = (reticleTransform.position - ball.transform.position).normalized;
     }
     
     void ShotTimeUpEventHandler(GameObject target)

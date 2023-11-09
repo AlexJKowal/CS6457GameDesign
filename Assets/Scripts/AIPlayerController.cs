@@ -42,7 +42,7 @@ public class AIPlayerController : MonoBehaviour
             float distance = Vector3.Distance(ball.transform.position, bt.targetLocation);
             
             Vector3 extraPosition;
-            if (distance > 6f)
+            if (distance > 9f)
             {
                 // when ball is far away, AI player would walk through the radius of target location
                 extraPosition = Quaternion.Euler(0, UnityEngine.Random.Range(-180.0f, 180.0f), 0)
@@ -50,7 +50,7 @@ public class AIPlayerController : MonoBehaviour
             }
             else
             {
-                NormalDistribution nd = new NormalDistribution(3f, 1f);
+                NormalDistribution nd = new NormalDistribution(3.5f, 1f);
                 extraPosition = velocity * (float)nd.Sample(new System.Random());
             }
             

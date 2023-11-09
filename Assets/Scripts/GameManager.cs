@@ -52,7 +52,6 @@ public class GameManager : MonoBehaviour
     private Dictionary<int, Level> _Levels = new Dictionary<int, Level>();
 
     private Dictionary<string, int> _Scores = new Dictionary<string, int>();
-    private Dictionary<string, Vector3> _InitialPositions = new Dictionary<string, Vector3>();
   
     public Dictionary<int, Level> Levels
     {
@@ -65,12 +64,7 @@ public class GameManager : MonoBehaviour
         get { return _Scores; }
         set { _Scores = value; }
     }
-    
-    public Dictionary<string, Vector3> InitialPositions
-    {
-        get { return _InitialPositions; }
-        set { _InitialPositions = value; }
-    }
+
 
     
     public static GameManager Instance
@@ -90,19 +84,12 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         AddLevels();
         SetInitialScores();
-        SetInitialPositions();
         InitGame();
     }
 
     private static void InitGame()
     {
-        // Assigning players to squares
-        Instance.humanPlayer.GetComponent<PlayerController>().homeSquare = Instance.square1;
-        Instance.AI_Player1.GetComponent<AIPlayerController>().homeSquare = Instance.square2;
-        Instance.AI_Player2.GetComponent<AIPlayerController>().homeSquare = Instance.square3;
-        Instance.AI_Player3.GetComponent<AIPlayerController>().homeSquare = Instance.square4;
         Instance.onLevelLoaded?.Invoke();
-        
         Instance.levelIndicator.SetText("Level " + Instance.currentLevel);
     }
 
@@ -207,7 +194,6 @@ public class GameManager : MonoBehaviour
             Instance.StartCoroutine(Instance.TimerCoroutine(5f, DisableConfetti));
             Instance.onLevelComplete?.Invoke();
             ResetScores();
-            ResetPositions();
         }
         
         Instance.levelIndicator.SetText("Level " + Instance.currentLevel);
@@ -220,8 +206,6 @@ public class GameManager : MonoBehaviour
         Instance.StartCoroutine(Instance.TimerCoroutine(3f, DisableText));
         Instance.onLevelComplete?.Invoke();
         ResetScores();
-        ResetPositions();
-
     }
     
     // Can be square or player
@@ -264,10 +248,6 @@ public class GameManager : MonoBehaviour
         {
             redoLevel();
         }
-        else
-        {
-            ResetPositions();
-        }
     }
 
     public void AddLevels()
@@ -294,23 +274,7 @@ public class GameManager : MonoBehaviour
         Scores.Add("AI_Player2", 0);
         Scores.Add("AI_Player3", 0);
     }
-    
-    public static void ResetGame()
-    {
-        Scene scene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(scene.name);
-        Instance.onLevelLoaded?.Invoke();
-    }
 
-    public static void ResetPositions()
-    {
-        EventManager.TriggerEvent<ResetEvent>();
-        Instance.ballObject.transform.position = Instance.InitialPositions["Ball"];
-        Instance.AI_Player1.transform.position = Instance.InitialPositions["AI1"];
-        Instance.AI_Player2.transform.position = Instance.InitialPositions["AI2"];
-        Instance.AI_Player3.transform.position = Instance.InitialPositions["AI3"];
-        Instance.humanPlayer.transform.position = Instance.InitialPositions["Human"];
-    }
     public static void ResetScores()
     {
         Instance.Scores["Player"] = 0;
@@ -318,16 +282,5 @@ public class GameManager : MonoBehaviour
         Instance.Scores["AI_Player2"] = 0;
         Instance.Scores["AI_Player3"] = 0;
         Instance.onScore?.Invoke();
-        
     }
-
-    public static void SetInitialPositions()
-    {
-        Instance.InitialPositions.Add("Ball", Instance.ballObject.transform.position);
-        Instance.InitialPositions.Add("AI1",  Instance.AI_Player1.transform.position);
-        Instance.InitialPositions.Add("AI2", Instance.AI_Player2.transform.position);
-        Instance.InitialPositions.Add("AI3", Instance.AI_Player3.transform.position);
-        Instance.InitialPositions.Add("Human", Instance.humanPlayer.transform.position);
-    }
-
 }

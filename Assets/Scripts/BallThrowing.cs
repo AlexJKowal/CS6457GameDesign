@@ -100,7 +100,7 @@ public class BallThrowing : MonoBehaviour
         return targetSquares[UnityEngine.Random.Range(0, targetSquares.Count)];
     }
     
-    private Vector3 GetRandomTargetPosition(GameObject square)
+    public Vector3 GetRandomTargetPosition(GameObject square)
     {
         // randomly pick the location of position within chosen square
         Vector3 size = square.GetComponent<MeshRenderer>().bounds.size;

@@ -19,6 +19,7 @@ public class AIPlayerController : MonoBehaviour
     private Rigidbody rbody;
     private Rigidbody ballRbody;
     private Vector3 targetLocation;
+    private bool justShot = false;
 
     // Start is called before the first frame update
     void Start()
@@ -64,13 +65,17 @@ public class AIPlayerController : MonoBehaviour
     
     private void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.CompareTag("Ball"))
+        if (!justShot && other.gameObject.CompareTag("Ball"))
         {
+            justShot = true;
             BallThrowing bt = ball.GetComponent<BallThrowing>();
             GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
 
             float flyingTime = GetFlyingTimeBasedOnGameLevel();
             bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime);
+            
+            //reset justShot to false
+            StartCoroutine(ResetJustShot());
         }
     }
 
@@ -82,5 +87,11 @@ public class AIPlayerController : MonoBehaviour
 
         // Each level will reduce the flying time to its 80%
         return flyingTime * (float)Math.Pow(0.8f, level - 1);
+    }
+    
+    IEnumerator ResetJustShot()
+    {
+        yield return new WaitForSeconds(0.3f);
+        justShot = false;
     }
 }

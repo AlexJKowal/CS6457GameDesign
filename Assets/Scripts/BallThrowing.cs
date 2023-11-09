@@ -154,7 +154,6 @@ public class BallThrowing : MonoBehaviour
         }
         else if(!other.gameObject.CompareTag("Player"))
         {
-            Debug.Log("ball existing a player");
             EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(Vector3.zero,
                 SquareLocation.square_one);
         }
@@ -232,6 +231,7 @@ public class BallThrowing : MonoBehaviour
 
     public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime)
     {
+        Debug.Log("ShotTheBallToTargetSquare");
         ballRb.isKinematic = true;
         _fromSquare = fromSquare; 
         _targetSquare = targetSquare;

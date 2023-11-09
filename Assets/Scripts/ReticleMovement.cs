@@ -9,20 +9,19 @@ public class ReticleMovement : MonoBehaviour
     
     public float reticleSpeed = 10f;
     public float reticleRadius = 3f;
-    private MeshRenderer mesh;
+    // private MeshRenderer mesh;
     private Camera mainCam;
 
     private Vector3 reticleCenter;
     private float reticleAngle;
 
-    void Start()
+    void Awake()
     {
-        mesh = GetComponent<MeshRenderer>();
+        // mesh = GetComponent<MeshRenderer>();
         PlayerController.OnHoldingBallChanged += UpdateReticleState;
         
-        mesh.enabled = true;
+        // mesh.enabled = true;
         mainCam = Camera.main;
-
     }
 
     // Update is called once per frame
@@ -33,7 +32,7 @@ public class ReticleMovement : MonoBehaviour
 
     private void UpdateReticleState(bool isHoldingBall)
     {
-        mesh.enabled = isHoldingBall;
+        // mesh.enabled = isHoldingBall;
     }
 
     void CalculatePlayerReticle()

@@ -57,6 +57,11 @@ public class PlayerController : MonoBehaviour
         shotTimeUpEventListener = new UnityAction<GameObject>(ShotTimeUpEventHandler);
         playerControls = new PlayerControls();
         playerControls.PlayerActions.Movement.Enable();
+        
+        playerRb = GetComponent<Rigidbody>();
+        ballRb = ball.GetComponent<Rigidbody>();
+
+        ResetStates();
     }
 
     void OnEnable()
@@ -72,15 +77,6 @@ public class PlayerController : MonoBehaviour
         EventManager.StopListening<ResetEvent>(resetEventListener);
         EventManager.StopListening<ShotTypeEvent, ShotType>(shotTypeEventListener);
         EventManager.StopListening<ShotTimeUpEvent, GameObject>(shotTimeUpEventListener);
-    }
-    void Start()
-    {
-        playerRb = GetComponent<Rigidbody>();
-        
-        ballRb = ball.GetComponent<Rigidbody>();
-        
-
-        ResetStates();
     }
 
     private void Update()

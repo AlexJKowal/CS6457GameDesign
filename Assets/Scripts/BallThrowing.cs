@@ -167,6 +167,7 @@ public class BallThrowing : MonoBehaviour
         {
             return;
         }
+
         if (other.gameObject.CompareTag("Player"))
         {
             _currentSquare = null;
@@ -193,6 +194,8 @@ public class BallThrowing : MonoBehaviour
                 _lastTouched = null;
                 _currentSquare = null;
                 bounced = -1;
+
+                return;
             }
         }
         
@@ -202,9 +205,12 @@ public class BallThrowing : MonoBehaviour
             _lastTouched = other.gameObject;
             _currentSquare = null;
             bounced = -1;
+            return;
         }
 
         bounced++;
+        
+        
     }
 
     public void ShootTheBallInDirection(float flyingTime, GameObject fromSquare, GameObject estimateSquare, Vector3 location)
@@ -231,7 +237,6 @@ public class BallThrowing : MonoBehaviour
 
     public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime)
     {
-        Debug.Log("ShotTheBallToTargetSquare");
         ballRb.isKinematic = true;
         _fromSquare = fromSquare; 
         _targetSquare = targetSquare;

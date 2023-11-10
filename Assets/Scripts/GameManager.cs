@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DefaultNamespace;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -155,6 +156,11 @@ public class GameManager : MonoBehaviour
 
     public static GameObject getPlayerOnSquare(GameObject square)
     {
+        if (square == null)
+        {
+            return null;
+        }
+        
         GameObject[] AI_Players = { Instance.AI_Player1, Instance.AI_Player2, Instance.AI_Player3 };
         GameObject player = Array.Find(AI_Players, 
             p => p.GetComponent<AIPlayerController>().homeSquare.CompareTag(square.tag)
@@ -175,7 +181,7 @@ public class GameManager : MonoBehaviour
         // just for demostration purpose, better than debug info
         Instance.gameStatus.SetText(message);
     }
-
+    
     public static void levelUp() 
     {
         Instance.currentLevel++;
@@ -278,9 +284,17 @@ public class GameManager : MonoBehaviour
     public static void ResetScores()
     {
         Instance.Scores["Player"] = 0;
-        Instance.Scores["AI_Player1"] = 0;
-        Instance.Scores["AI_Player2"] = 0;
-        Instance.Scores["AI_Player3"] = 0;
+        Instance.Scores["AIPlayer1"] = 0;
+        Instance.Scores["AIPlayer2"] = 0;
+        Instance.Scores["AIPlayer3"] = 0;
         Instance.onScore?.Invoke();
+    }
+
+    public static void SetPlayersState(PlayerState ps)
+    {
+        Instance.humanPlayer.GetComponent<PlayerController>().playerState = ps;
+        Instance.AI_Player1.GetComponent<AIPlayerController>().playerState = ps;
+        Instance.AI_Player2.GetComponent<AIPlayerController>().playerState = ps;
+        Instance.AI_Player3.GetComponent<AIPlayerController>().playerState = ps;
     }
 }

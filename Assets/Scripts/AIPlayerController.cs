@@ -10,8 +10,8 @@ using Random = UnityEngine.Random;
 public class AIPlayerController : MonoBehaviour
 {
     private NavMeshAgent agent;
-    
-    public AIPlayerState aiState = AIPlayerState.CatchBall;
+
+    public PlayerState playerState { get; set; } = PlayerState.Playing;
     public GameObject homeSquare;
     public GameObject ball;
     
@@ -32,16 +32,24 @@ public class AIPlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (playerState == PlayerState.Playing)
+        {
+            Playing();
+        }
+    }
+
+    private void Playing()
+    {
         BallThrowing bt = ball.GetComponent<BallThrowing>();
-        
+
         // ball is hitting to our location
         if (bt._targetSquare != null && homeSquare.CompareTag(bt._targetSquare.tag))
         {
             Vector3 velocity = ball.GetComponent<Rigidbody>().velocity.normalized;
             velocity.y = 0;
-            
+
             float distance = Vector3.Distance(ball.transform.position, bt.targetLocation);
-            
+
             Vector3 extraPosition;
             if (distance > 9f)
             {
@@ -54,28 +62,31 @@ public class AIPlayerController : MonoBehaviour
                 NormalDistribution nd = new NormalDistribution(3.5f, 1f);
                 extraPosition = velocity * (float)nd.Sample(new System.Random());
             }
-            
-            agent.SetDestination(bt.targetLocation + extraPosition);    
+
+            agent.SetDestination(bt.targetLocation + extraPosition);
         }
         else
         {
-            agent.SetDestination(homeSquare.transform.position);  
+            agent.SetDestination(homeSquare.transform.position);
         }
     }
     
     private void OnCollisionEnter(Collision other)
     {
-        if (!justShot && other.gameObject.CompareTag("Ball"))
+        if (playerState == PlayerState.Playing)
         {
-            justShot = true;
-            BallThrowing bt = ball.GetComponent<BallThrowing>();
-            GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
+            if (!justShot && other.gameObject.CompareTag("Ball"))
+            {
+                justShot = true;
+                BallThrowing bt = ball.GetComponent<BallThrowing>();
+                GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
 
-            float flyingTime = GetFlyingTimeBasedOnGameLevel();
-            bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime);
-            
-            //reset justShot to false
-            StartCoroutine(ResetJustShot());
+                float flyingTime = GetFlyingTimeBasedOnGameLevel();
+                bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime);
+
+                //reset justShot to false
+                StartCoroutine(ResetJustShot());
+            }
         }
     }
 

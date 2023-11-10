@@ -20,6 +20,12 @@ TagManager:
   - Square4
   - Ground
   - Grass
+  - Line
+  - ScoreBoard
+  - Target
+  - Collectible
+  - Confetti
+  - PlayGrounds
   layers:
   - Default
   - TransparentFX

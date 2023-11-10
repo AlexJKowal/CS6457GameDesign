@@ -7,8 +7,7 @@ public class GameMenu : MonoBehaviour
 {
     public void OnStartGame()
     {
-        Debug.Log("load four square game");
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene("Scenes/FourSquare");
     }
 
     public void OnGameOptions()
@@ -19,5 +18,10 @@ public class GameMenu : MonoBehaviour
     public void OnExit()
     {
         Application.Quit();
+    }
+
+    public void OnBackToHome()
+    {
+        SceneManager.LoadScene("Scenes/StartScreen");
     }
 }

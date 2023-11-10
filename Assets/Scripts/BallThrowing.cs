@@ -100,7 +100,7 @@ public class BallThrowing : MonoBehaviour
         return targetSquares[UnityEngine.Random.Range(0, targetSquares.Count)];
     }
     
-    private Vector3 GetRandomTargetPosition(GameObject square)
+    public Vector3 GetRandomTargetPosition(GameObject square)
     {
         // randomly pick the location of position within chosen square
         Vector3 size = square.GetComponent<MeshRenderer>().bounds.size;
@@ -139,7 +139,7 @@ public class BallThrowing : MonoBehaviour
         UpdateHittingGround();
     }
 
-    private void OnCollisionEnter(Collision other)
+    private void OnCollisionExit(Collision other)
     {
         if (pc.isHoldingBall)
         {
@@ -149,24 +149,25 @@ public class BallThrowing : MonoBehaviour
         if (other.gameObject.tag.Contains("Square"))
         {
             
-            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
+            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(Vector3.zero,
                 SquareLocation.square_one);
         }
         else if(!other.gameObject.CompareTag("Player"))
         {
-            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(other.contacts[0].point,
+            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(Vector3.zero,
                 SquareLocation.square_one);
         }
 
-        // When play hit the ball, trigger the sound in shot functions instead of using collision
+        PreviousWinLoseLogic(other);
     }
 
-    public void OnCollisionExit(Collision other)
+    private void PreviousWinLoseLogic(Collision other)
     {
         if (pc.isHoldingBall)
         {
             return;
         }
+
         if (other.gameObject.CompareTag("Player"))
         {
             _currentSquare = null;
@@ -193,6 +194,8 @@ public class BallThrowing : MonoBehaviour
                 _lastTouched = null;
                 _currentSquare = null;
                 bounced = -1;
+
+                return;
             }
         }
         
@@ -202,9 +205,12 @@ public class BallThrowing : MonoBehaviour
             _lastTouched = other.gameObject;
             _currentSquare = null;
             bounced = -1;
+            return;
         }
 
         bounced++;
+        
+        
     }
 
     public void ShootTheBallInDirection(float flyingTime, GameObject fromSquare, GameObject estimateSquare, Vector3 location)

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using DefaultNamespace;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -12,6 +13,8 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {
+    public PlayerState playerState { get; set; } = PlayerState.Playing;
+    
     public Transform reticleTransform;
     public GameObject homeSquare;
     
@@ -37,14 +40,7 @@ public class PlayerController : MonoBehaviour
     private bool justPickedUp = false;
     private bool justReleased = false;
     private bool quickRelease = false;
-    private bool smashInProgress = false;
-    private Vector3 smashDir;
-    private float smashCurrentPeriod = 0f;
-    public float smashMultiplier = 1.2f;
     public float maxThrowForce = 20f;
-    private float maxSmashForce = 0;
-    public float initialSmashForce = 2f;
-    public float smashTransitionPeriod = 0.25f;
     private float chargeAmount = 0f;
     public float chargeRate = 10f;
     public float lobTweak = 1f;
@@ -57,6 +53,11 @@ public class PlayerController : MonoBehaviour
         shotTimeUpEventListener = new UnityAction<GameObject>(ShotTimeUpEventHandler);
         playerControls = new PlayerControls();
         playerControls.PlayerActions.Movement.Enable();
+        
+        playerRb = GetComponent<Rigidbody>();
+        ballRb = ball.GetComponent<Rigidbody>();
+
+        ResetStates();
     }
 
     void OnEnable()
@@ -66,33 +67,45 @@ public class PlayerController : MonoBehaviour
         EventManager.StartListening<ShotTimeUpEvent, GameObject>(shotTimeUpEventListener);
         
     }
-
+    
     void OnDisable()
     {
         EventManager.StopListening<ResetEvent>(resetEventListener);
         EventManager.StopListening<ShotTypeEvent, ShotType>(shotTypeEventListener);
         EventManager.StopListening<ShotTimeUpEvent, GameObject>(shotTimeUpEventListener);
     }
-    void Start()
-    {
-        playerRb = GetComponent<Rigidbody>();
-        
-        ballRb = ball.GetComponent<Rigidbody>();
-        
 
-        ResetStates();
-    }
-
-    private void Update()
+    void FixedUpdate()
     {
         if (!ballServed)
         {
-            serviceTheBallIfHavent();
+            // ball moves with player
+            ball.transform.position = transform.position + transform.forward;
         }
-        HandleBall();
+        
+        // Player Movement
+        if (playerState == PlayerState.Playing)
+        {
+            // ready to pick up the ball again
+            HandleBall();
+            
+            HandleMovePlayer();
+            HandleRotatePlayer();
+        }
+    }
+    
+    void HandleRotatePlayer()
+    {
+        Vector3 mousePos = Input.mousePosition;
+        Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
+
+        Vector3 aimDirection = mousePos - playerScreenPos;
+        float angle = Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg;
+
+        transform.rotation = Quaternion.Euler(0, angle, 0);
     }
 
-    void FixedUpdate()
+    void HandleMovePlayer()
     {
         Vector2 inputVec = playerControls.PlayerActions.Movement.ReadValue<Vector2>();
         Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y);
@@ -107,40 +120,16 @@ public class PlayerController : MonoBehaviour
             transform.position += moveDir;
             playerRb.angularVelocity = Vector3.zero;
         }
-        
-        RotatePlayer();
     }
-    
-    void RotatePlayer()
-    {
-        Vector3 mousePos = Input.mousePosition;
-        Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
-
-        Vector3 aimDirection = mousePos - playerScreenPos;
-        float angle = Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg;
-
-        transform.rotation = Quaternion.Euler(0, angle, 0);
-    }
-
-    //public void MovePlayer(InputAction.CallbackContext value)
-    //{
-    //    float horizontal = Input.GetAxis("Horizontal");
-    //    float vertical = Input.GetAxis("Vertical");
-    //    Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
-
-    //    if (direction.magnitude >= 0.2f)
-    //    {
-    //        // Convert the direction from local to world space based on camera orientation
-    //        Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
-    //        moveDir *= moveSpeed * Time.fixedDeltaTime;
-    //        moveDir.y = 0;
-    //        playerRb.MovePosition(transform.position + moveDir);
-    //    }
-    //}
 
     void HandleBall()
     {
-        float distanceToBall = Vector3.Distance(transform.position, ball.transform.position);
+        Vector3 ballPosition = ball.transform.position;
+        Vector3 position = playerRb.ClosestPointOnBounds(ballPosition);
+        
+        // The distance to ball is now optimized to use a closest point from player collider boundary to the ball
+        // So it can handle better if ball is hitting from player's head
+        float distanceToBall = Vector3.Distance(position, ballPosition);
         
         // Pick up ball automatically when in range
         if (!isHoldingBall && distanceToBall <= 1.5f && !justReleased)
@@ -182,11 +171,6 @@ public class PlayerController : MonoBehaviour
                 {
                     PlayerLobShot();
                 }
-                else if (shotType == ShotType.smash_shot)
-                {
-                    //PlayerSmashShot();
-                    PlayerLobShot();
-                }
                 
                 ResetBallHandling();
                 EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(SquareLocation.square_one, shotType);
@@ -198,55 +182,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void serviceTheBallIfHavent()
-    {
-        if (ballServed)
-        {
-            return;
-        }
-        
-        ball.transform.position = transform.position + transform.forward;
-       // if (Input.GetButton("Fire1") || Input.GetAxis("JoyFire1") > 0.1f)
-      //  {
-            //TODO: hardcoded to the first square, but should be the current square
-            // EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(SquareLocation.square_one, ShotType.lob_shot);
-            
-            // shot the ball
-       //     ShotTheBall();
-            
-          //  ballServed = true;
-      //  }
-    }
-
     private void ShootTheBall(float shootingForce)
     {
-        GameObject estimatedTargetSquare = EstimateTarget();
+        GameObject estimatedTargetSquare = GameManager.getTargetSquareBasedOnPosition(reticleTransform.position);
         BallThrowing bt = ball.GetComponent<BallThrowing>();
 
         float flyingTime = Math.Max(2f - shootingForce/14f * 1.5f, 0.6f);
         
-        // Debug.Log("shootingForce: " + shootingForce + "flyingTime:" + flyingTime);
-        
         bt.ShootTheBallInDirection(0.5f, homeSquare, estimatedTargetSquare, reticleTransform.position);
     }
 
-    private GameObject EstimateTarget()
-    {
-        Debug.Log("reticleTransform.position:" + reticleTransform.position.ToString());
-        return GameManager.getTargetSquareBasedOnPosition(reticleTransform.position);
-    }
-    
     void PlayerLobShot()
     {
         float finalThrowForce = Mathf.Clamp(chargeAmount, 0, maxThrowForce);
         ShootTheBall(finalThrowForce);
-    }
-
-    void PlayerSmashShot()
-    {
-        smashInProgress = true;
-        maxSmashForce = Mathf.Clamp(chargeAmount, 0, smashMultiplier * maxThrowForce);
-        smashDir = (reticleTransform.position - ball.transform.position).normalized;
     }
     
     void ShotTimeUpEventHandler(GameObject target)

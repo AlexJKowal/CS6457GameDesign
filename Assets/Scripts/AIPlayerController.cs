@@ -10,8 +10,8 @@ using Random = UnityEngine.Random;
 public class AIPlayerController : MonoBehaviour
 {
     private NavMeshAgent agent;
-    
-    public AIPlayerState aiState = AIPlayerState.CatchBall;
+
+    public PlayerState playerState { get; set; } = PlayerState.Playing;
     public GameObject homeSquare;
     public GameObject ball;
     
@@ -19,6 +19,7 @@ public class AIPlayerController : MonoBehaviour
     private Rigidbody rbody;
     private Rigidbody ballRbody;
     private Vector3 targetLocation;
+    private bool justShot = false;
 
     // Start is called before the first frame update
     void Start()
@@ -31,18 +32,26 @@ public class AIPlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (playerState == PlayerState.Playing)
+        {
+            Playing();
+        }
+    }
+
+    private void Playing()
+    {
         BallThrowing bt = ball.GetComponent<BallThrowing>();
-        
+
         // ball is hitting to our location
         if (bt._targetSquare != null && homeSquare.CompareTag(bt._targetSquare.tag))
         {
             Vector3 velocity = ball.GetComponent<Rigidbody>().velocity.normalized;
             velocity.y = 0;
-            
+
             float distance = Vector3.Distance(ball.transform.position, bt.targetLocation);
-            
+
             Vector3 extraPosition;
-            if (distance > 6f)
+            if (distance > 9f)
             {
                 // when ball is far away, AI player would walk through the radius of target location
                 extraPosition = Quaternion.Euler(0, UnityEngine.Random.Range(-180.0f, 180.0f), 0)
@@ -50,27 +59,34 @@ public class AIPlayerController : MonoBehaviour
             }
             else
             {
-                NormalDistribution nd = new NormalDistribution(3f, 1f);
+                NormalDistribution nd = new NormalDistribution(3.5f, 1f);
                 extraPosition = velocity * (float)nd.Sample(new System.Random());
             }
-            
-            agent.SetDestination(bt.targetLocation + extraPosition);    
+
+            agent.SetDestination(bt.targetLocation + extraPosition);
         }
         else
         {
-            agent.SetDestination(homeSquare.transform.position);  
+            agent.SetDestination(homeSquare.transform.position);
         }
     }
     
     private void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.CompareTag("Ball"))
+        if (playerState == PlayerState.Playing)
         {
-            BallThrowing bt = ball.GetComponent<BallThrowing>();
-            GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
+            if (!justShot && other.gameObject.CompareTag("Ball"))
+            {
+                justShot = true;
+                BallThrowing bt = ball.GetComponent<BallThrowing>();
+                GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
 
-            float flyingTime = GetFlyingTimeBasedOnGameLevel();
-            bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime);
+                float flyingTime = GetFlyingTimeBasedOnGameLevel();
+                bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime);
+
+                //reset justShot to false
+                StartCoroutine(ResetJustShot());
+            }
         }
     }
 
@@ -82,5 +98,11 @@ public class AIPlayerController : MonoBehaviour
 
         // Each level will reduce the flying time to its 80%
         return flyingTime * (float)Math.Pow(0.8f, level - 1);
+    }
+    
+    IEnumerator ResetJustShot()
+    {
+        yield return new WaitForSeconds(0.3f);
+        justShot = false;
     }
 }

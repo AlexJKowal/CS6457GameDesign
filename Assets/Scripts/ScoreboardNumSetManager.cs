@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using UnityEngine;
 
 public class ScoreboardNumSetManager : MonoBehaviour
@@ -25,9 +26,8 @@ public class ScoreboardNumSetManager : MonoBehaviour
         return count10 * 10 + count1;
     }
 
-    public void SetScore()
+    public void SetScore(int score)
     {
-        int score = GameManager.Instance.Scores["Player"];
         count10 = (int)Mathf.Floor(score / 10);
         count1 = score % 10;
   

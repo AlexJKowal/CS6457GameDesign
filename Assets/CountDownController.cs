@@ -11,10 +11,17 @@ using UnityEngine.UI;
 public class CountDownController : MonoBehaviour
 {
     public int countDownTime;
+    private int _countDownTime;
     public TextMeshProUGUI countDownText;
     public EventSystem eventSystem;
     private void Awake()
     {
+        ShowCountDown();
+    }
+
+    public void ShowCountDown()
+    {
+        _countDownTime = countDownTime;
         Time.timeScale = 1;
         StartCoroutine(CountdownToStart());
     }
@@ -30,10 +37,10 @@ public class CountDownController : MonoBehaviour
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1;
         
-        while (countDownTime > 0)
+        while (_countDownTime > 0)
         {
-            countDownText.text = countDownTime.ToString();
-            countDownTime--;
+            countDownText.text = _countDownTime.ToString();
+            _countDownTime--;
             yield return new WaitForSeconds(1f);
         }
 

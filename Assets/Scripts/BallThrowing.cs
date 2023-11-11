@@ -16,7 +16,6 @@ public class BallThrowing : MonoBehaviour
 {
     private float a = 9.81f / 2;
     
-    [SerializeField] private Projection _projection;
     public GameObject ballPrefab;
     
     private Rigidbody ballRb;
@@ -28,20 +27,18 @@ public class BallThrowing : MonoBehaviour
     // this is the target indicator where the ball will hit the ground
     public GameObject target;
 
-    public GameObject humanPlayer;
-
     public GameObject _fromSquare;
     public GameObject _targetSquare;
-    
-    private GameObject _currentSquare;
-    private GameObject _lastTouched;
 
     public Vector3 targetLocation;
     
-    public int bounced;
-
-    private PlayerController pc;
-
+    private int _bounced;
+    public bool shouldCheckWinOrLose = false;
+    
+    // Ignore duplicated collisions
+    private long _lastCollisionTime;
+    private GameObject _lastCollisionObject;
+    
     // Based on formula delta_Y = Vi * t + 1/2 * g * t^2
     private float GetFreeFallTime(float initialVelocity, float height)
     {
@@ -126,7 +123,6 @@ public class BallThrowing : MonoBehaviour
             throw new ArgumentException("Need to set Squares");
         }
 
-        pc = humanPlayer.GetComponent<PlayerController>();
         ballTransform = this.gameObject.transform;
         _collider = GetComponent<SphereCollider>();
         ballRb = GetComponent<Rigidbody>();
@@ -141,135 +137,177 @@ public class BallThrowing : MonoBehaviour
 
     private void OnCollisionExit(Collision other)
     {
-        if (pc.isHoldingBall)
+        // when player holds the ball, it triggers false collision events
+        if (!shouldCheckWinOrLose)
         {
             return;
+        }
+
+        if (ballRb.isKinematic)
+        {
+            return;
+        }
+        
+        // For players, the hit sound is controlled with shooting logic itself
+        if(!other.gameObject.CompareTag("Player"))
+        {
+            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(Vector3.zero,
+                SquareLocation.square_one);
+        }
+
+        // Ignore false collision signals if they are too closed
+        if (IsDuplicatedCollision(other))
+        {
+            return;
+        }
+        
+        CheckIfGameIsFinished(other);
+        
+        // Call previous win lose logic
+        // PreviousWinLoseLogic(other);
+    }
+
+    private bool IsDuplicatedCollision(Collision other)
+    {
+        long collisionTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        // ignore if collision time is less than 0.3 seconds
+        if (collisionTime - _lastCollisionTime < 300 && GameObject.ReferenceEquals(other.gameObject, _lastCollisionObject))
+        {
+            _lastCollisionTime = collisionTime;
+            _lastCollisionObject = other.gameObject;
+            return true;
+        }
+
+        _lastCollisionTime = collisionTime;
+        _lastCollisionObject = other.gameObject;
+
+        return false;
+    }
+
+    private void CheckIfGameIsFinished(Collision other)
+    {
+        
+        // If detect any win/lose situation, call GameManager API to inform which player is lost the game
+        // Otherwise, continue playing
+        Debug.Log(_bounced + ", Ball has colliding with something " + other.gameObject.name);  
+        
+        if (_bounced == 0)
+        {
+
+        } else if (_bounced == 1)
+        {
+            // the collision has to be the player on target court, otherwise, someone has lost the game
+            if (_targetSquare)
+            {
+                GameObject targetPlayer = GameManager.getPlayerOnSquare(_targetSquare);
+                // if player is expected, then it is good
+                if (!GameObject.ReferenceEquals(targetPlayer, other.gameObject))
+                {
+                    // if other players took the ball mistakenly, consider they are failed
+                    if (other.gameObject.CompareTag("Player"))
+                    {
+                        // Not the right player who touched the ball, consider their fault
+                        GameManager.UpdateWinLose(other.gameObject);
+                        return;
+                    }
+                    else // if hit anything else, targetPlayer is failed to picking the ball up
+                    {
+                        // the player missed the ball, so lose the game
+                        GameManager.UpdateWinLose(targetPlayer);
+                        return;
+                    }
+                }
+            }
         }
         
         if (other.gameObject.tag.Contains("Square"))
         {
-            
-            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(Vector3.zero,
-                SquareLocation.square_one);
+            _bounced = 1;    
         }
-        else if(!other.gameObject.CompareTag("Player"))
-        {
-            EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(Vector3.zero,
-                SquareLocation.square_one);
-        }
-
-        PreviousWinLoseLogic(other);
     }
 
-    private void PreviousWinLoseLogic(Collision other)
+    // private void PreviousWinLoseLogic(Collision other)
+    // {
+    //     if (other.gameObject.CompareTag("Player"))
+    //     {
+    //         _currentSquare = null;
+    //         _lastTouched = other.gameObject;
+    //         bounced = 0;
+    //     }
+    //     else if (other.gameObject.tag.Contains("Square"))
+    //     {
+    //         if (_currentSquare == null)
+    //         {
+    //             _currentSquare = other.gameObject;
+    //         }
+    //         else if (_currentSquare != other.gameObject)
+    //         {
+    //             bounced = 0;
+    //             _currentSquare = other.gameObject;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         if (_currentSquare != null)
+    //         {
+    //             GameManager.updateScoreResult(_currentSquare, _lastTouched);
+    //             _lastTouched = null;
+    //             _currentSquare = null;
+    //             bounced = -1;
+    //
+    //             return;
+    //         }
+    //     }
+    //     
+    //     if (bounced == 1 && _currentSquare != null)
+    //     {
+    //         GameManager.updateScoreResult(_currentSquare, _lastTouched);
+    //         _lastTouched = other.gameObject;
+    //         _currentSquare = null;
+    //         bounced = -1;
+    //         return;
+    //     }
+    //
+    //     bounced++;
+    // }
+
+    public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime, Vector3? location)
     {
-        if (pc.isHoldingBall)
-        {
-            return;
-        }
-
-        if (other.gameObject.CompareTag("Player"))
-        {
-            _currentSquare = null;
-            _lastTouched = other.gameObject;
-            bounced = 0;
-        }
-        else if (other.gameObject.tag.Contains("Square"))
-        {
-            if (_currentSquare == null)
-            {
-                _currentSquare = other.gameObject;
-            }
-            else if (_currentSquare != other.gameObject)
-            {
-                bounced = 0;
-                _currentSquare = other.gameObject;
-            }
-        }
-        else
-        {
-            if (_currentSquare != null)
-            {
-                GameManager.updateScoreResult(_currentSquare, _lastTouched);
-                _lastTouched = null;
-                _currentSquare = null;
-                bounced = -1;
-
-                return;
-            }
-        }
+        shouldCheckWinOrLose = false;
+        Vector3 ballPosition = ballTransform.position;
         
-        if (bounced == 1 && _currentSquare != null)
-        {
-            GameManager.updateScoreResult(_currentSquare, _lastTouched);
-            _lastTouched = other.gameObject;
-            _currentSquare = null;
-            bounced = -1;
-            return;
-        }
-
-        bounced++;
-        
-        
-    }
-
-    public void ShootTheBallInDirection(float flyingTime, GameObject fromSquare, GameObject estimateSquare, Vector3 location)
-    {
-        ballRb.isKinematic = true;
-        _fromSquare = fromSquare;
-        _targetSquare = estimateSquare;
-        targetLocation = location;
-        GameManager.updateGameStatus("Ball is from " + fromSquare.tag + " and heading to ???");
-
-        // Jeff: Right now we don't consider the initial force, but this force can be integrated easily to affect the `expectedTime`, shorter time meaning much faster ball speed
-        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, flyingTime);
-        
-        ballRb.velocity = velocity;
-        ballRb.isKinematic = false;
-        
-        StartCoroutine(ResetBounced());
-        
-        EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(ballTransform.position,
-            SquareLocation.square_one);
-        
-        ShowInstruction();
-    }
-
-    public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime)
-    {
         ballRb.isKinematic = true;
         _fromSquare = fromSquare; 
         _targetSquare = targetSquare;
-        GameManager.updateGameStatus("Ball is from " + fromSquare.tag + " and heading to " + targetSquare.tag);
-        
-        targetLocation = GetRandomTargetPosition(targetSquare);
 
-        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballTransform.position, targetLocation, flyingTime);
+        targetLocation = location ?? GetRandomTargetPosition(targetSquare);
+
+        Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballPosition, targetLocation, flyingTime);
 
         ballRb.velocity = velocity;
         ballRb.isKinematic = false;
 
         // we need to set bounced to zero with slightly delay because collision event triggering order issue
-        StartCoroutine(ResetBounced());
+        StartCoroutine(StartCheckingBounce());
         
-        EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(ballTransform.position,
+        EventManager.TriggerEvent<BallBounceEvent, Vector3, SquareLocation>(ballPosition,
             SquareLocation.square_one);
 
         ShowInstruction();
     }
 
-    IEnumerator ResetBounced()
+    IEnumerator StartCheckingBounce()
     {
-        yield return new WaitForSeconds(0.3f);
-        bounced = 0;
+        yield return new WaitForSeconds(0.2f);
+        shouldCheckWinOrLose = true;
+        _bounced = 0;
     }
 
     private void ShowInstruction()
     {
-        // if level 1, show projection line, we can show target too
+        // if level 1, show target
         if (GameManager.Instance.currentLevel == 1)
         {
-            // _projection.SimulateTrajectory(ballPrefab, ballTransform.position, ballRb.velocity); 
             target.SetActive(true);
         }
     }

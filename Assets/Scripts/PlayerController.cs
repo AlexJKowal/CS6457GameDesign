@@ -32,7 +32,6 @@ public class PlayerController : MonoBehaviour
     
     private UnityAction resetEventListener;
     public delegate void HoldingBallChanged(bool isHoldingBall);
-    public static event HoldingBallChanged OnHoldingBallChanged;
     private UnityAction<ShotType> shotTypeEventListener;
     private UnityAction<GameObject> shotTimeUpEventListener;
     private PlayerControls playerControls;
@@ -80,6 +79,7 @@ public class PlayerController : MonoBehaviour
         if (!ballServed)
         {
             // ball moves with player
+            ballRb.isKinematic = true;
             ball.transform.position = transform.position + transform.forward;
         }
         
@@ -136,7 +136,6 @@ public class PlayerController : MonoBehaviour
         {
           
             isHoldingBall = true;
-            OnHoldingBallChanged?.Invoke(isHoldingBall);
             EventManager.TriggerEvent<BallCaughtEvent, GameObject, SquareLocation>(gameObject, SquareLocation.square_one);
 
             justPickedUp = true;
@@ -189,7 +188,7 @@ public class PlayerController : MonoBehaviour
 
         float flyingTime = Math.Max(2f - shootingForce/14f * 1.5f, 0.6f);
         
-        bt.ShootTheBallInDirection(0.5f, homeSquare, estimatedTargetSquare, reticleTransform.position);
+        bt.ShotTheBallToTargetSquare( homeSquare, estimatedTargetSquare, 0.5f, reticleTransform.position);
     }
 
     void PlayerLobShot()
@@ -206,17 +205,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void ResetStates()
+    public void ResetStates()
     {
         // hold the ball
         ballRb.isKinematic = true;
         ballServed = false;
+        isHoldingBall = true;
     }
     
     void ResetBallHandling()
     {
         isHoldingBall = false;
-        OnHoldingBallChanged?.Invoke(isHoldingBall);
         chargeAmount = 0f;
         justPickedUp = false;
     }

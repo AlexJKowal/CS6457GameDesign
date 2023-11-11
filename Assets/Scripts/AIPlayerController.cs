@@ -27,6 +27,8 @@ public class AIPlayerController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         if (agent == null)
             Debug.Log("NavMeshAgent could not be found");
+
+        ballRbody = ball.GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -73,6 +75,12 @@ public class AIPlayerController : MonoBehaviour
     
     private void OnCollisionEnter(Collision other)
     {
+        // player is holding the ball
+        if (ballRbody.isKinematic)
+        {
+            return;
+        }
+        
         if (playerState == PlayerState.Playing)
         {
             if (!justShot && other.gameObject.CompareTag("Ball"))
@@ -82,7 +90,7 @@ public class AIPlayerController : MonoBehaviour
                 GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
 
                 float flyingTime = GetFlyingTimeBasedOnGameLevel();
-                bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime);
+                bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime, null);
 
                 //reset justShot to false
                 StartCoroutine(ResetJustShot());

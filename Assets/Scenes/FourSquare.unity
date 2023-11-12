@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.17699257, g: 0.22156017, b: 0.3038357, a: 1}
+  m_IndirectSpecularColor: {r: 0.1769922, g: 0.2215594, b: 0.30383462, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -9289,6 +9289,11 @@ PrefabInstance:
       propertyPath: homeSquare
       value: 
       objectReference: {fileID: 2066771423}
+    - target: {fileID: 4742477482615804409, guid: 65215aaa22dfc44eb96306e6b9c462ef,
+        type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 882842501}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 65215aaa22dfc44eb96306e6b9c462ef, type: 3}
 --- !u!1 &1325006032
@@ -10651,8 +10656,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d33cccb64dc94706abfbb8a9aded4612, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  renderer: {fileID: 0}
-  material: {fileID: 0}
 --- !u!1001 &1864825128
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10730,6 +10733,11 @@ PrefabInstance:
       propertyPath: homeSquare
       value: 
       objectReference: {fileID: 452241234}
+    - target: {fileID: 4742477482615804409, guid: 65215aaa22dfc44eb96306e6b9c462ef,
+        type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 882842501}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 65215aaa22dfc44eb96306e6b9c462ef, type: 3}
 --- !u!1 &1897028903
@@ -11380,7 +11388,7 @@ PrefabInstance:
     - target: {fileID: 2432427019510639740, guid: 65215aaa22dfc44eb96306e6b9c462ef,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.89
+      value: 4.8957486
       objectReference: {fileID: 0}
     - target: {fileID: 2432427019510639740, guid: 65215aaa22dfc44eb96306e6b9c462ef,
         type: 3}
@@ -11390,12 +11398,12 @@ PrefabInstance:
     - target: {fileID: 2432427019510639740, guid: 65215aaa22dfc44eb96306e6b9c462ef,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5.18
+      value: 5.1831474
       objectReference: {fileID: 0}
     - target: {fileID: 2432427019510639740, guid: 65215aaa22dfc44eb96306e6b9c462ef,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.37169892
       objectReference: {fileID: 0}
     - target: {fileID: 2432427019510639740, guid: 65215aaa22dfc44eb96306e6b9c462ef,
         type: 3}
@@ -11405,7 +11413,7 @@ PrefabInstance:
     - target: {fileID: 2432427019510639740, guid: 65215aaa22dfc44eb96306e6b9c462ef,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: -0.92835337
       objectReference: {fileID: 0}
     - target: {fileID: 2432427019510639740, guid: 65215aaa22dfc44eb96306e6b9c462ef,
         type: 3}
@@ -11420,7 +11428,7 @@ PrefabInstance:
     - target: {fileID: 2432427019510639740, guid: 65215aaa22dfc44eb96306e6b9c462ef,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: -136.359
       objectReference: {fileID: 0}
     - target: {fileID: 2432427019510639740, guid: 65215aaa22dfc44eb96306e6b9c462ef,
         type: 3}
@@ -11442,6 +11450,11 @@ PrefabInstance:
       propertyPath: homeSquare
       value: 
       objectReference: {fileID: 1661783858}
+    - target: {fileID: 4742477482615804409, guid: 65215aaa22dfc44eb96306e6b9c462ef,
+        type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 882842501}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 65215aaa22dfc44eb96306e6b9c462ef, type: 3}
 --- !u!1001 &5677162988021645796

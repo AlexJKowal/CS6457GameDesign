@@ -226,53 +226,10 @@ public class BallThrowing : MonoBehaviour
         }
     }
 
-    // private void PreviousWinLoseLogic(Collision other)
-    // {
-    //     if (other.gameObject.CompareTag("Player"))
-    //     {
-    //         _currentSquare = null;
-    //         _lastTouched = other.gameObject;
-    //         bounced = 0;
-    //     }
-    //     else if (other.gameObject.tag.Contains("Square"))
-    //     {
-    //         if (_currentSquare == null)
-    //         {
-    //             _currentSquare = other.gameObject;
-    //         }
-    //         else if (_currentSquare != other.gameObject)
-    //         {
-    //             bounced = 0;
-    //             _currentSquare = other.gameObject;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         if (_currentSquare != null)
-    //         {
-    //             GameManager.updateScoreResult(_currentSquare, _lastTouched);
-    //             _lastTouched = null;
-    //             _currentSquare = null;
-    //             bounced = -1;
-    //
-    //             return;
-    //         }
-    //     }
-    //     
-    //     if (bounced == 1 && _currentSquare != null)
-    //     {
-    //         GameManager.updateScoreResult(_currentSquare, _lastTouched);
-    //         _lastTouched = other.gameObject;
-    //         _currentSquare = null;
-    //         bounced = -1;
-    //         return;
-    //     }
-    //
-    //     bounced++;
-    // }
-
     public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime, Vector3? location)
     {
+        Debug.Log(fromSquare.name + " shot the ball to " + targetSquare.name);
+        
         shouldCheckWinOrLose = false;
         Vector3 ballPosition = ballTransform.position;
         
@@ -284,9 +241,6 @@ public class BallThrowing : MonoBehaviour
 
         Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballPosition, targetLocation, flyingTime);
 
-        ballRb.velocity = velocity;
-        ballRb.isKinematic = false;
-
         // we need to set bounced to zero with slightly delay because collision event triggering order issue
         StartCoroutine(StartCheckingBounce());
         
@@ -294,6 +248,9 @@ public class BallThrowing : MonoBehaviour
             SquareLocation.square_one);
 
         ShowInstruction();
+        
+        ballRb.velocity = velocity;
+        ballRb.isKinematic = false;
     }
 
     IEnumerator StartCheckingBounce()

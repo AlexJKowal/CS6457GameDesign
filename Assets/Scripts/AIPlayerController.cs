@@ -34,9 +34,15 @@ public class AIPlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (playerState == PlayerState.Playing)
+        switch (playerState)
         {
-            Playing();
+            case PlayerState.Playing:
+                Playing();
+                break;
+            default:
+                // Moving back to center area
+                agent.SetDestination(homeSquare.transform.position);
+                break;
         }
     }
 

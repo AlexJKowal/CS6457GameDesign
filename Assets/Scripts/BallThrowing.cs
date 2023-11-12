@@ -193,6 +193,13 @@ public class BallThrowing : MonoBehaviour
         
         if (_bounced == 0)
         {
+            // ball should not hit the from square
+            if (other.gameObject.CompareTag(_fromSquare.tag) || !other.gameObject.tag.Contains("Square"))
+            {
+                GameObject player = GameManager.getPlayerOnSquare(_fromSquare);
+                GameManager.UpdateWinLose(player);
+                return;
+            }
 
         } else if (_bounced == 1)
         {
@@ -220,10 +227,8 @@ public class BallThrowing : MonoBehaviour
             }
         }
         
-        if (other.gameObject.tag.Contains("Square"))
-        {
-            _bounced = 1;    
-        }
+        // should hit the other 3 squares
+        _bounced = 1;    
     }
 
     public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime, Vector3? location)

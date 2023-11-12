@@ -896,7 +896,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!136 &4742477482615804408
 CapsuleCollider:
@@ -924,9 +924,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98ca2c007b17c41f48636539a9fa58e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aiState: 1
+  mainCamera: {fileID: 0}
   homeSquare: {fileID: 0}
   ball: {fileID: 0}
+  rotationSpeed: 5
 --- !u!195 &4742477482615804414
 NavMeshAgent:
   m_ObjectHideFlags: 0

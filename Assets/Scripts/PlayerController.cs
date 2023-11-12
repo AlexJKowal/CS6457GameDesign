@@ -161,8 +161,8 @@ public class PlayerController : MonoBehaviour
         if (isHoldingBall)
         {
             // Position the ball in front of the player
-            ball.transform.position = transform.position + transform.forward;
-
+            ball.transform.position = transform.position + transform.forward + new Vector3(0f, 1.5f, 0f);
+ 
             // Charge throw while holding the ball
             chargeAmount += Time.deltaTime * chargeRate;
 

@@ -32,7 +32,6 @@ public class PlayerController : MonoBehaviour
     
     private UnityAction resetEventListener;
     public delegate void HoldingBallChanged(bool isHoldingBall);
-    public static event HoldingBallChanged OnHoldingBallChanged;
     private UnityAction<ShotType> shotTypeEventListener;
     private UnityAction<GameObject> shotTimeUpEventListener;
     private PlayerControls playerControls;
@@ -81,20 +80,25 @@ public class PlayerController : MonoBehaviour
         if (!ballServed)
         {
             // ball moves with player
+            ballRb.isKinematic = true;
             ball.transform.position = transform.position + transform.forward;
         }
-        
-        // Player Movement
-        if (playerState == PlayerState.Playing)
+
+        switch (playerState)
         {
-            // ready to pick up the ball again
-            HandleBall();
-            
-            HandleMovePlayer();
+            case PlayerState.Playing:
+                // ready to pick up the ball again
+                HandleBall();
+                HandleMovePlayer();
+                HandleRotatePlayer();
+                break;
+            default:
+                transform.position = homeSquare.transform.position;
+                break;
         }
     }
 
-    float HandleRotatePlayer()
+    void HandleRotatePlayer()
     {
         Vector3 mousePos = Input.mousePosition;
         Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
@@ -102,20 +106,18 @@ public class PlayerController : MonoBehaviour
         Vector3 aimDirection = mousePos - playerScreenPos;
         float angle = Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg;
 
-        transform.rotation = Quaternion.Euler(0, angle - 45, 0);
-        return angle;
+        transform.rotation = Quaternion.Euler(0, angle, 0);
     }
 
     void HandleMovePlayer()
     {
         Vector2 inputVec = playerControls.PlayerActions.Movement.ReadValue<Vector2>();
         Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y);
-        float angle = HandleRotatePlayer();
 
         if (direction.magnitude >= 0.2f)
         {
             // Convert the direction from local to world space based on camera orientation
-            Vector3 moveDir = Quaternion.Euler(0, angle - 45, 0) * direction;
+            Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
             moveDir *= moveSpeed * Time.fixedDeltaTime;
             moveDir.y = 0;
 
@@ -145,7 +147,6 @@ public class PlayerController : MonoBehaviour
         {
           
             isHoldingBall = true;
-            OnHoldingBallChanged?.Invoke(isHoldingBall);
             EventManager.TriggerEvent<BallCaughtEvent, GameObject, SquareLocation>(gameObject, SquareLocation.square_one);
 
             justPickedUp = true;
@@ -198,7 +199,7 @@ public class PlayerController : MonoBehaviour
 
         float flyingTime = Math.Max(2f - shootingForce/14f * 1.5f, 0.6f);
         
-        bt.ShootTheBallInDirection(0.5f, homeSquare, estimatedTargetSquare, reticleTransform.position);
+        bt.ShotTheBallToTargetSquare( homeSquare, estimatedTargetSquare, 0.5f, reticleTransform.position);
     }
 
     void PlayerLobShot()
@@ -215,17 +216,17 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void ResetStates()
+    public void ResetStates()
     {
         // hold the ball
         ballRb.isKinematic = true;
         ballServed = false;
+        isHoldingBall = true;
     }
     
     void ResetBallHandling()
     {
         isHoldingBall = false;
-        OnHoldingBallChanged?.Invoke(isHoldingBall);
         chargeAmount = 0f;
         justPickedUp = false;
     }

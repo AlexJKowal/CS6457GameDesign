@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class ReticleMovement : MonoBehaviour
 {
-
     public GameObject player;
     
     public float reticleSpeed = 10f;
@@ -17,10 +16,6 @@ public class ReticleMovement : MonoBehaviour
 
     void Awake()
     {
-        // mesh = GetComponent<MeshRenderer>();
-        PlayerController.OnHoldingBallChanged += UpdateReticleState;
-        
-        // mesh.enabled = true;
         mainCam = Camera.main;
     }
 
@@ -28,11 +23,6 @@ public class ReticleMovement : MonoBehaviour
     void Update()
     {
         CalculatePlayerReticle();
-    }
-
-    private void UpdateReticleState(bool isHoldingBall)
-    {
-        // mesh.enabled = isHoldingBall;
     }
 
     void CalculatePlayerReticle()

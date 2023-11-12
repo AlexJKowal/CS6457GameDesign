@@ -10,11 +10,13 @@ using Random = UnityEngine.Random;
 public class AIPlayerController : MonoBehaviour
 {
     private NavMeshAgent agent;
-
+    public Camera mainCamera;
     public PlayerState playerState { get; set; } = PlayerState.Playing;
     public GameObject homeSquare;
     public GameObject ball;
     
+    public float rotationSpeed = 5;
+        
     private Animator anim;
     private Rigidbody rbody;
     private Rigidbody ballRbody;
@@ -27,15 +29,37 @@ public class AIPlayerController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         if (agent == null)
             Debug.Log("NavMeshAgent could not be found");
+
+        ballRbody = ball.GetComponent<Rigidbody>();
+        anim = this.GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (playerState == PlayerState.Playing)
+        HandleRotatePlayer();
+        switch (playerState)
         {
-            Playing();
+            case PlayerState.Playing:
+                Playing();
+                break;
+            default:
+                // Moving back to center area
+                agent.SetDestination(homeSquare.transform.position);
+                break;
         }
+        
+        anim.SetFloat("velx", Math.Min(agent.velocity.x / 10, 1f));
+        anim.SetFloat("vely", Math.Min(agent.velocity.z / 10, 1f));
+    }
+    
+    void HandleRotatePlayer()
+    {
+        Vector3 ballPosition = ballRbody.position;
+        Vector3 dir = ballPosition - transform.position;
+        dir.y = 0;//This allows the object to only rotate on its y axis
+        Quaternion rot = Quaternion.LookRotation(dir);
+        transform.rotation = Quaternion.Lerp(transform.rotation, rot, rotationSpeed * Time.deltaTime);
     }
 
     private void Playing()
@@ -55,7 +79,7 @@ public class AIPlayerController : MonoBehaviour
             {
                 // when ball is far away, AI player would walk through the radius of target location
                 extraPosition = Quaternion.Euler(0, UnityEngine.Random.Range(-180.0f, 180.0f), 0)
-                                * new Vector3(Random.Range(-5f, 5f), 0, Random.Range(-5f, 5f));
+                                * new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f));
             }
             else
             {
@@ -73,6 +97,12 @@ public class AIPlayerController : MonoBehaviour
     
     private void OnCollisionEnter(Collision other)
     {
+        // player is holding the ball
+        if (ballRbody.isKinematic)
+        {
+            return;
+        }
+        
         if (playerState == PlayerState.Playing)
         {
             if (!justShot && other.gameObject.CompareTag("Ball"))
@@ -82,7 +112,7 @@ public class AIPlayerController : MonoBehaviour
                 GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
 
                 float flyingTime = GetFlyingTimeBasedOnGameLevel();
-                bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime);
+                bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime, null);
 
                 //reset justShot to false
                 StartCoroutine(ResetJustShot());

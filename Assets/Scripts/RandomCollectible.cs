@@ -171,7 +171,7 @@ public class RandomCollectible : MonoBehaviour
 
     void OnCollisionEnter(Collision c)
     {
-        if (c.gameObject.CompareTag("Player") || c.gameObject.CompareTag("Enemy"))
+        if (c.gameObject.CompareTag("Player"))
         {
             EventManager.TriggerEvent<StatBoostEvent, GameObject, BoostType, float, float>(
                 c.gameObject,

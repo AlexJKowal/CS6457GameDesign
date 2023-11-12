@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
     private UnityAction<ShotType> shotTypeEventListener;
     private UnityAction<GameObject> shotTimeUpEventListener;
     private PlayerControls playerControls;
+    private Animator anim;
     public bool isHoldingBall = false;
     private bool justPickedUp = false;
     private bool justReleased = false;
@@ -56,7 +57,7 @@ public class PlayerController : MonoBehaviour
         
         playerRb = GetComponent<Rigidbody>();
         ballRb = ball.GetComponent<Rigidbody>();
-
+        anim = GetComponent<Animator>();
         ResetStates();
     }
 
@@ -90,11 +91,10 @@ public class PlayerController : MonoBehaviour
             HandleBall();
             
             HandleMovePlayer();
-            HandleRotatePlayer();
         }
     }
-    
-    void HandleRotatePlayer()
+
+    float HandleRotatePlayer()
     {
         Vector3 mousePos = Input.mousePosition;
         Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
@@ -102,23 +102,32 @@ public class PlayerController : MonoBehaviour
         Vector3 aimDirection = mousePos - playerScreenPos;
         float angle = Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg;
 
-        transform.rotation = Quaternion.Euler(0, angle, 0);
+        transform.rotation = Quaternion.Euler(0, angle - 45, 0);
+        return angle;
     }
 
     void HandleMovePlayer()
     {
         Vector2 inputVec = playerControls.PlayerActions.Movement.ReadValue<Vector2>();
         Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y);
+        float angle = HandleRotatePlayer();
 
         if (direction.magnitude >= 0.2f)
         {
             // Convert the direction from local to world space based on camera orientation
-            Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
+            Vector3 moveDir = Quaternion.Euler(0, angle - 45, 0) * direction;
             moveDir *= moveSpeed * Time.fixedDeltaTime;
             moveDir.y = 0;
-            
+
             transform.position += moveDir;
+            anim.SetFloat("vely", moveDir.z * 5);
+            anim.SetFloat("velx", moveDir.x * 5);
             playerRb.angularVelocity = Vector3.zero;
+        }
+        else
+        {
+            anim.SetFloat("vely", 0);
+            anim.SetFloat("velx", 0);
         }
     }
 
@@ -152,8 +161,8 @@ public class PlayerController : MonoBehaviour
         if (isHoldingBall)
         {
             // Position the ball in front of the player
-            ball.transform.position = transform.position + transform.forward;
-
+            ball.transform.position = transform.position + transform.forward + new Vector3(0f, 1.5f, 0f);
+ 
             // Charge throw while holding the ball
             chargeAmount += Time.deltaTime * chargeRate;
 

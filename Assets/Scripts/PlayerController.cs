@@ -94,6 +94,8 @@ public class PlayerController : MonoBehaviour
                 break;
             default:
                 transform.position = homeSquare.transform.position;
+                anim.SetFloat("vely", 0);
+                anim.SetFloat("velx", 0);
                 break;
         }
     }

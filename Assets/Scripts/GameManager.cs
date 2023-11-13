@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using DefaultNamespace;
 using TMPro;
 using Unity.VisualScripting;
@@ -101,11 +102,6 @@ public class GameManager : MonoBehaviour
             return Instance.humanPlayer;
         }
     }
-
-    public static void updateGameStatus(String message)
-    {
-        Instance.gameStatus.SetText(message);
-    }
     
     public static void levelUp() 
     {
@@ -125,25 +121,23 @@ public class GameManager : MonoBehaviour
 
     public static void UpdateWinLose(GameObject losePlayer)
     {
+        bool playerWin;
         // human player lose the game
         if (GameObject.ReferenceEquals(losePlayer, Instance.humanPlayer))
         {
+            playerWin = false;
             Instance.playerLoses++;
-            updateGameStatus("You Lose...");
-            
             if (Instance.playerLoses >= Instance.MAXMAL_LOSES)
             {
-                // user lose the game, show lose canvas
+                // Load Lose Scene
                 
-                // start count down screen again
-                RestartGame();
             }
+            
         }
         else // human player win the game
         {
-            updateGameStatus("You Win!!!");
+            playerWin = true;
             Instance.playerWins++;
-            
             if (Instance.playerWins >= Instance.LEVEL_UP_WINS)
             {
                 // load next level
@@ -152,20 +146,33 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        SetPlayerScore(Instance.playerWins);
-        RestartGame();
+        Instance.StartCoroutine(ShowWinLoseTransitions(playerWin));
     }
 
-    public static void RestartGame()
+    static IEnumerator ShowWinLoseTransitions(bool win)
     {
+        GameManager.SetPlayersState(PlayerState.Idle);
+        
+        String message = win ? "You Win!" : "You Lose!";
+        // Update player score
+        Instance.scoreBoard.GetComponent<ScoreboardNumSetManager>().SetScore(Instance.playerWins);
+        
+        // Reset the game (Avoid ball bouncing again after win or lose
         Instance.humanPlayer.GetComponent<PlayerController>().ResetStates();
-        Instance.countDownCanvas.GetComponent<CountDownController>().ShowCountDown();
+        
+        // Show animated win/lose text
+        float waitSeconds = 2f;
+        Instance.gameStatus.GetComponent<AnimateText>().ShowText(message, waitSeconds);
+        yield return new WaitForSeconds(waitSeconds + 1);
+        
+        // Show count down
+        int countDown = 3;
+        Instance.countDownCanvas.GetComponent<CountDownController>().ShowCountDown(countDown);
+        yield return new WaitForSeconds(countDown + 1);
+        
+        GameManager.SetPlayersState(PlayerState.Playing);
     }
 
-    public static void SetPlayerScore(int score)
-    {
-        Instance.scoreBoard.GetComponent<ScoreboardNumSetManager>().SetScore(score);
-    }
 
     // Set player state to something other than Playering, will stop receiving controller inputs
     public static void SetPlayersState(PlayerState ps)

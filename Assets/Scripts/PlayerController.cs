@@ -8,8 +8,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
-using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {

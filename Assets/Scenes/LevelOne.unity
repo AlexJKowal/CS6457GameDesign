@@ -2297,9 +2297,6 @@ MonoBehaviour:
   square3: {fileID: 2066771423}
   square4: {fileID: 452241234}
   confettiSystem: {fileID: 1262279206}
-  MAX_LEVEL: 1
-  LEVEL_UP_WINS: 3
-  MAXMAL_LOSES: 3
   currentLevel: 1
   playerWins: 0
   playerLoses: 0
@@ -10226,17 +10223,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1694409966}
-  m_LocalRotation: {x: -0.000039810664, y: -0.0041754246, z: 0.005836229, w: 0.99997425}
-  m_LocalPosition: {x: 0, y: 0, z: -41.80508}
+  m_LocalRotation: {x: -0.015828175, y: -0.015340567, z: 0.010603825, w: 0.99970084}
+  m_LocalPosition: {x: 0, y: 0, z: -41.657}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 281693454}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: -0.002, y: -0.478, z: 0.669}
+  m_LocalEulerAnglesHint: {x: -1.795, y: -1.778, z: 1.243}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 10.230459, y: 1.0626872}
+  m_AnchoredPosition: {x: 10.235868, y: 1.1170365}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1694409968
@@ -10259,7 +10256,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Level 1
+  m_text: Level Indicator
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}

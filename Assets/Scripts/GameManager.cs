@@ -56,6 +56,7 @@ public class GameManager : MonoBehaviour
     public void Awake()
     {
         _instance = this;
+        Instance.levelIndicator.SetText("Level " + Instance.currentLevel);
     }
 
     public static GameObject getTargetSquareBasedOnPosition(Vector3 position)

@@ -33,9 +33,9 @@ public class GameManager : MonoBehaviour
     public GameObject confettiSystem;
     
 
-    public int MAX_LEVEL = 1;
-    public int LEVEL_UP_WINS = 3;
-    public int MAXMAL_LOSES = 3;
+    private int MAX_LEVEL = 3;
+    private int LEVEL_UP_WINS = 3;
+    private int MAXMAL_LOSES = 3;
     
     public int currentLevel = 1;
 
@@ -56,12 +56,6 @@ public class GameManager : MonoBehaviour
     public void Awake()
     {
         _instance = this;
-        InitGame();
-    }
-
-    private static void InitGame()
-    {
-        Instance.levelIndicator.SetText("Level " + Instance.currentLevel);
     }
 
     public static GameObject getTargetSquareBasedOnPosition(Vector3 position)
@@ -103,8 +97,10 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    public static void levelUp() 
+    public static void levelUp()
     {
+        Instance.playerWins = 0;
+        Instance.playerLoses = 0;
         Instance.currentLevel++;
         if (Instance.currentLevel > Instance.MAX_LEVEL){
             SceneManager.LoadScene("VictoryScreen");
@@ -112,11 +108,16 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            if (Instance.currentLevel == 2)
+            {
+                SceneManager.LoadScene("Scenes/LevelTwo");    
+            } else if (Instance.currentLevel == 3) {
+                SceneManager.LoadScene("Scenes/LevelThree");   
+            }
+            
             EventManager.TriggerEvent<CheeringEvent, Vector3>(Instance.confettiSystem.transform.position);
             Instance.confettiSystem.SetActive(true);
         }
-        
-        Instance.levelIndicator.SetText("Level " + Instance.currentLevel);
     }
 
     public static void UpdateWinLose(GameObject losePlayer)

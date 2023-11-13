@@ -98,7 +98,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void HandleRotatePlayer()
+    float HandleRotatePlayer()
     {
         Vector3 mousePos = Input.mousePosition;
         Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
@@ -106,24 +106,29 @@ public class PlayerController : MonoBehaviour
         Vector3 aimDirection = mousePos - playerScreenPos;
         float angle = Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg;
 
-        transform.rotation = Quaternion.Euler(0, angle, 0);
+        transform.rotation = Quaternion.Euler(0, angle - 45, 0);
+
+        return angle;
     }
 
     void HandleMovePlayer()
     {
+        float angle = HandleRotatePlayer();
         Vector2 inputVec = playerControls.PlayerActions.Movement.ReadValue<Vector2>();
         Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y);
+        Vector3 relative; 
 
         if (direction.magnitude >= 0.2f)
         {
             // Convert the direction from local to world space based on camera orientation
-            Vector3 moveDir = Quaternion.Euler(0, mainCamera.transform.eulerAngles.y, 0) * direction;
+            Vector3 moveDir = Quaternion.Euler(0, angle - 45, 0) * direction;
             moveDir *= moveSpeed * Time.fixedDeltaTime;
             moveDir.y = 0;
 
             transform.position += moveDir;
-            anim.SetFloat("vely", moveDir.z * 5);
-            anim.SetFloat("velx", moveDir.x * 5);
+            relative = transform.InverseTransformDirection(moveDir.x, moveDir.y, moveDir.z);
+            anim.SetFloat("vely", relative.z * 5);
+            anim.SetFloat("velx", relative.x * 5);
             playerRb.angularVelocity = Vector3.zero;
         }
         else

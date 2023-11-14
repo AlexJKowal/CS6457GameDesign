@@ -27,6 +27,8 @@ public class CountDownController : MonoBehaviour
 
     IEnumerator CountdownToStart()
     {
+        GameManager.SetPlayersState(PlayerState.Idle);
+        
         CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
 
         eventSystem.sendNavigationEvents = false;
@@ -49,5 +51,7 @@ public class CountDownController : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         canvasGroup.alpha = 0;
         eventSystem.sendNavigationEvents = true;
+        
+        GameManager.SetPlayersState(PlayerState.Playing);
     }
 }

@@ -41,7 +41,7 @@ public class AIPlayerController : MonoBehaviour
         switch (playerState)
         {
             case PlayerState.Playing:
-                Playing();
+                MovePlayerDuringPlaying();
                 break;
             default:
                 // Moving back to center area
@@ -62,7 +62,7 @@ public class AIPlayerController : MonoBehaviour
         transform.rotation = Quaternion.Lerp(transform.rotation, rot, rotationSpeed * Time.deltaTime);
     }
 
-    private void Playing()
+    private void MovePlayerDuringPlaying()
     {
         BallThrowing bt = ball.GetComponent<BallThrowing>();
 
@@ -102,21 +102,24 @@ public class AIPlayerController : MonoBehaviour
         {
             return;
         }
-        
-        if (playerState == PlayerState.Playing)
+
+        switch (playerState)
         {
-            if (!justShot && other.gameObject.CompareTag("Ball"))
-            {
-                justShot = true;
-                BallThrowing bt = ball.GetComponent<BallThrowing>();
-                GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
+            case PlayerState.Playing:
+                if (!justShot && other.gameObject.CompareTag("Ball"))
+                {
+                    justShot = true;
+                    BallThrowing bt = ball.GetComponent<BallThrowing>();
+                    GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
 
-                float flyingTime = GetFlyingTimeBasedOnGameLevel();
-                bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime, null);
+                    float flyingTime = GetFlyingTimeBasedOnGameLevel();
+                    bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime, null);
 
-                //reset justShot to false
-                StartCoroutine(ResetJustShot());
-            }
+                    //reset justShot to false
+                    StartCoroutine(ResetJustShot());
+                }
+
+                break;
         }
     }
 

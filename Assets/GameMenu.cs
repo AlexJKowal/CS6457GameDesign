@@ -7,7 +7,7 @@ public class GameMenu : MonoBehaviour
 {
     public void OnStartGame()
     {
-        SceneManager.LoadScene("Scenes/FourSquare");
+        SceneManager.LoadScene("Scenes/LevelOne");
     }
 
     public void OnGameOptions()

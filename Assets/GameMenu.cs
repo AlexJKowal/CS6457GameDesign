@@ -24,4 +24,9 @@ public class GameMenu : MonoBehaviour
     {
         SceneManager.LoadScene("Scenes/StartScreen");
     }
+
+    public void OnTutorial()
+    {
+        SceneManager.LoadScene("Scenes/TutorialScene");
+    }
 }

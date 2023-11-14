@@ -141,7 +141,7 @@ public class GameManager : MonoBehaviour
         }
         else // human player win the game
         {
-            updateGameStatus("You Win!!!");
+            updateGameStatus("You scored!!!");
             Instance.playerWins++;
             
             if (Instance.playerWins >= Instance.LEVEL_UP_WINS)

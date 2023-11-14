@@ -10,11 +10,6 @@ public class GameMenu : MonoBehaviour
         SceneManager.LoadScene("Scenes/LevelOne");
     }
 
-    public void OnGameOptions()
-    {
-        // to be implemented
-    }
-
     public void OnExit()
     {
         Application.Quit();

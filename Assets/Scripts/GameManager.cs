@@ -97,29 +97,6 @@ public class GameManager : MonoBehaviour
             return Instance.humanPlayer;
         }
     }
-    
-    public static void levelUp()
-    {
-        Instance.playerWins = 0;
-        Instance.playerLoses = 0;
-        Instance.currentLevel++;
-        if (Instance.currentLevel > Instance.MAX_LEVEL){
-            SceneManager.LoadScene("VictoryScreen");
-            Instance.currentLevel = 1;
-        }
-        else
-        {
-            if (Instance.currentLevel == 2)
-            {
-                SceneManager.LoadScene("Scenes/LevelTwo");    
-            } else if (Instance.currentLevel == 3) {
-                SceneManager.LoadScene("Scenes/LevelThree");   
-            }
-            
-            EventManager.TriggerEvent<CheeringEvent, Vector3>(Instance.confettiSystem.transform.position);
-            Instance.confettiSystem.SetActive(true);
-        }
-    }
 
     public static void UpdateWinLose(GameObject losePlayer)
     {
@@ -132,7 +109,8 @@ public class GameManager : MonoBehaviour
             if (Instance.playerLoses >= Instance.MAXMAL_LOSES)
             {
                 // Load Lose Scene
-                
+                Instance.StartCoroutine(EndLosingGame());
+                return;
             }
             
         }
@@ -143,7 +121,7 @@ public class GameManager : MonoBehaviour
             if (Instance.playerWins >= Instance.LEVEL_UP_WINS)
             {
                 // load next level
-                levelUp();
+                Instance.StartCoroutine(LevelUp());
                 return;
             }
         }
@@ -151,11 +129,61 @@ public class GameManager : MonoBehaviour
         Instance.StartCoroutine(ShowWinLoseTransitions(playerWin));
     }
 
+    // End the game after 3 loses
+    static IEnumerator EndLosingGame()
+    {
+        float waitSeconds = 2f;
+        
+        Instance.gameStatus.GetComponent<AnimateText>().ShowText("You Lose the Game.", waitSeconds);
+        yield return new WaitForSeconds(waitSeconds + 1);
+        
+        SceneManager.LoadScene("Scenes/LoseScene");
+    }
+
+    static IEnumerator LevelUp()
+    {
+        GameManager.SetPlayersState(PlayerState.Idle);
+        
+        // Reset the game (Avoid ball bouncing again after win or lose
+        Instance.humanPlayer.GetComponent<PlayerController>().ResetStates();
+        
+        // Show animated win/lose text
+        float waitSeconds = 2f;
+
+
+        Instance.playerWins = 0;
+        Instance.playerLoses = 0;
+        Instance.currentLevel++;
+        if (Instance.currentLevel > Instance.MAX_LEVEL){
+            Instance.gameStatus.GetComponent<AnimateText>().ShowText("You Win!", waitSeconds);
+            yield return new WaitForSeconds(waitSeconds + 1);
+            
+            SceneManager.LoadScene("VictoryScreen");
+            Instance.currentLevel = 1;
+        }
+        else
+        {
+            Instance.gameStatus.GetComponent<AnimateText>().ShowText("Level Up!", waitSeconds);
+            yield return new WaitForSeconds(waitSeconds + 1);
+            
+            if (Instance.currentLevel == 2)
+            {
+                SceneManager.LoadScene("Scenes/LevelTwo");    
+            } else if (Instance.currentLevel == 3) {
+                SceneManager.LoadScene("Scenes/LevelThree");   
+            }
+            
+            EventManager.TriggerEvent<CheeringEvent, Vector3>(Instance.confettiSystem.transform.position);
+            Instance.confettiSystem.SetActive(true);
+        }
+    }
+    
     static IEnumerator ShowWinLoseTransitions(bool win)
     {
         GameManager.SetPlayersState(PlayerState.Idle);
         
-        String message = win ? "You Win!" : "You Lose!";
+        String message = win ? "You Score!" : 
+            "You Lose! you have " + (Instance.MAXMAL_LOSES - Instance.playerLoses) + " tries left";
         // Update player score
         Instance.scoreBoard.GetComponent<ScoreboardNumSetManager>().SetScore(Instance.playerWins);
         

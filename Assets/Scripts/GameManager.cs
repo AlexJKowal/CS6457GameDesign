@@ -33,8 +33,8 @@ public class GameManager : MonoBehaviour
     public GameObject confettiSystem;
     
 
-    private int MAX_LEVEL = 3;
-    private int LEVEL_UP_WINS = 3;
+    private int MAX_LEVEL = 4;
+    private int LEVEL_UP_WINS = 4;
     private int MAXMAL_LOSES = 3;
     
     public int currentLevel = 1;
@@ -171,6 +171,8 @@ public class GameManager : MonoBehaviour
                 SceneManager.LoadScene("Scenes/LevelTwo");    
             } else if (Instance.currentLevel == 3) {
                 SceneManager.LoadScene("Scenes/LevelThree");   
+            } else if (Instance.currentLevel == 4) {
+                SceneManager.LoadScene("Scenes/LevelFour");   
             }
             
             EventManager.TriggerEvent<CheeringEvent, Vector3>(Instance.confettiSystem.transform.position);

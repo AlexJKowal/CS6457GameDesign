@@ -14,6 +14,7 @@ public class BounceTile : MonoBehaviour
     private Rigidbody playerRb;
     private Animator playerAnimator;
     private NavMeshAgent navMesh;
+    private GameObject player;
     
 
     private bool animateDir = true; // true = up, false = down;
@@ -48,6 +49,7 @@ public class BounceTile : MonoBehaviour
                     {
                         navMesh.enabled = true;
                     }
+                    player.transform.parent = null;
                     animateState = false; // Returned home, done animating
                 }
                 
@@ -60,11 +62,12 @@ public class BounceTile : MonoBehaviour
     {
         if (c.gameObject.CompareTag("Player"))
         {
-            playerAnimator = c.gameObject.GetComponent<Animator>();
-            playerRb = c.gameObject.GetComponent<Rigidbody>();
-            c.gameObject.transform.parent = gameObject.transform;
+            player = c.gameObject;
+            playerAnimator = player.GetComponent<Animator>();
+            playerRb = player.GetComponent<Rigidbody>();
+            player.transform.parent = gameObject.transform;
             animateState = true;
-            navMesh = c.gameObject.GetComponent<NavMeshAgent>();
+            navMesh = player.GetComponent<NavMeshAgent>();
             if (navMesh != null)
             {
                 navMesh.enabled = false;
@@ -75,11 +78,6 @@ public class BounceTile : MonoBehaviour
     
     private void OnCollisionExit(Collision c)
     {
-        if (c.gameObject.CompareTag("Player"))
-        {
-            c.gameObject.transform.parent = null;
-        }
-
         navMesh = null;
     }
 }

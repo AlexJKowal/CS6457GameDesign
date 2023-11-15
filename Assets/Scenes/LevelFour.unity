@@ -2682,9 +2682,6 @@ MonoBehaviour:
   square3: {fileID: 2066771423}
   square4: {fileID: 452241234}
   confettiSystem: {fileID: 1262279206}
-  MAX_LEVEL: 1
-  LEVEL_UP_WINS: 3
-  MAXMAL_LOSES: 3
   currentLevel: 1
   playerWins: 0
   playerLoses: 0
@@ -10410,7 +10407,7 @@ PrefabInstance:
     - target: {fileID: 2432427019510639740, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2432427019510639740, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
@@ -13409,7 +13406,7 @@ PrefabInstance:
     - target: {fileID: 2432427019510639740, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2432427019510639740, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
@@ -15142,7 +15139,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b71c70fa61bd344a1bcd67c78b59c328, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  countDownTime: 3
   countDownText: {fileID: 1285316678}
   eventSystem: {fileID: 1897028905}
 --- !u!1 &2059498462
@@ -15625,7 +15621,7 @@ PrefabInstance:
     - target: {fileID: 2432427019510639740, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2451467031419977692, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using DefaultNamespace;
 using TMPro;
 using Unity.VisualScripting;
@@ -32,9 +33,9 @@ public class GameManager : MonoBehaviour
     public GameObject confettiSystem;
     
 
-    public int MAX_LEVEL = 1;
-    public int LEVEL_UP_WINS = 3;
-    public int MAXMAL_LOSES = 3;
+    private int MAX_LEVEL = 3;
+    private int LEVEL_UP_WINS = 3;
+    private int MAXMAL_LOSES = 3;
     
     public int currentLevel = 1;
 
@@ -55,11 +56,6 @@ public class GameManager : MonoBehaviour
     public void Awake()
     {
         _instance = this;
-        InitGame();
-    }
-
-    private static void InitGame()
-    {
         Instance.levelIndicator.SetText("Level " + Instance.currentLevel);
     }
 
@@ -102,70 +98,111 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public static void updateGameStatus(String message)
+    public static void UpdateWinLose(GameObject losePlayer)
     {
-        Instance.gameStatus.SetText(message);
+        bool playerWin;
+        // human player lose the game
+        if (GameObject.ReferenceEquals(losePlayer, Instance.humanPlayer))
+        {
+            playerWin = false;
+            Instance.playerLoses++;
+            if (Instance.playerLoses >= Instance.MAXMAL_LOSES)
+            {
+                // Load Lose Scene
+                Instance.StartCoroutine(EndLosingGame());
+                return;
+            }
+            
+        }
+        else // human player win the game
+        {
+            playerWin = true;
+            Instance.playerWins++;
+            if (Instance.playerWins >= Instance.LEVEL_UP_WINS)
+            {
+                // load next level
+                Instance.StartCoroutine(LevelUp());
+                return;
+            }
+        }
+
+        Instance.StartCoroutine(ShowWinLoseTransitions(playerWin));
     }
-    
-    public static void levelUp() 
+
+    // End the game after 3 loses
+    static IEnumerator EndLosingGame()
     {
+        float waitSeconds = 2f;
+        
+        Instance.gameStatus.GetComponent<AnimateText>().ShowText("You Lose the Game.", waitSeconds);
+        yield return new WaitForSeconds(waitSeconds + 1);
+        
+        SceneManager.LoadScene("Scenes/LoseScene");
+    }
+
+    static IEnumerator LevelUp()
+    {
+        GameManager.SetPlayersState(PlayerState.Idle);
+        
+        // Reset the game (Avoid ball bouncing again after win or lose
+        Instance.humanPlayer.GetComponent<PlayerController>().ResetStates();
+        
+        // Show animated win/lose text
+        float waitSeconds = 2f;
+
+
+        Instance.playerWins = 0;
+        Instance.playerLoses = 0;
         Instance.currentLevel++;
         if (Instance.currentLevel > Instance.MAX_LEVEL){
+            Instance.gameStatus.GetComponent<AnimateText>().ShowText("You Win!", waitSeconds);
+            yield return new WaitForSeconds(waitSeconds + 1);
+            
             SceneManager.LoadScene("VictoryScreen");
             Instance.currentLevel = 1;
         }
         else
         {
+            Instance.gameStatus.GetComponent<AnimateText>().ShowText("Level Up!", waitSeconds);
+            yield return new WaitForSeconds(waitSeconds + 1);
+            
+            if (Instance.currentLevel == 2)
+            {
+                SceneManager.LoadScene("Scenes/LevelTwo");    
+            } else if (Instance.currentLevel == 3) {
+                SceneManager.LoadScene("Scenes/LevelThree");   
+            }
+            
             EventManager.TriggerEvent<CheeringEvent, Vector3>(Instance.confettiSystem.transform.position);
             Instance.confettiSystem.SetActive(true);
         }
+    }
+    
+    static IEnumerator ShowWinLoseTransitions(bool win)
+    {
+        GameManager.SetPlayersState(PlayerState.Idle);
         
-        Instance.levelIndicator.SetText("Level " + Instance.currentLevel);
-    }
-
-    public static void UpdateWinLose(GameObject losePlayer)
-    {
-        // human player lose the game
-        if (GameObject.ReferenceEquals(losePlayer, Instance.humanPlayer))
-        {
-            Instance.playerLoses++;
-            updateGameStatus("You Lose...");
-            
-            if (Instance.playerLoses >= Instance.MAXMAL_LOSES)
-            {
-                // user lose the game, show lose canvas
-                
-                // start count down screen again
-                RestartGame();
-            }
-        }
-        else // human player win the game
-        {
-            updateGameStatus("You Win!!!");
-            Instance.playerWins++;
-            
-            if (Instance.playerWins >= Instance.LEVEL_UP_WINS)
-            {
-                // load next level
-                levelUp();
-                return;
-            }
-        }
-
-        SetPlayerScore(Instance.playerWins);
-        RestartGame();
-    }
-
-    public static void RestartGame()
-    {
+        String message = win ? "You Score!" : 
+            "You Lose! you have " + (Instance.MAXMAL_LOSES - Instance.playerLoses) + " tries left";
+        // Update player score
+        Instance.scoreBoard.GetComponent<ScoreboardNumSetManager>().SetScore(Instance.playerWins);
+        
+        // Reset the game (Avoid ball bouncing again after win or lose
         Instance.humanPlayer.GetComponent<PlayerController>().ResetStates();
-        Instance.countDownCanvas.GetComponent<CountDownController>().ShowCountDown();
+        
+        // Show animated win/lose text
+        float waitSeconds = 2f;
+        Instance.gameStatus.GetComponent<AnimateText>().ShowText(message, waitSeconds);
+        yield return new WaitForSeconds(waitSeconds + 1);
+        
+        // Show count down
+        int countDown = 3;
+        Instance.countDownCanvas.GetComponent<CountDownController>().ShowCountDown(countDown);
+        yield return new WaitForSeconds(countDown + 1);
+        
+        GameManager.SetPlayersState(PlayerState.Playing);
     }
 
-    public static void SetPlayerScore(int score)
-    {
-        Instance.scoreBoard.GetComponent<ScoreboardNumSetManager>().SetScore(score);
-    }
 
     // Set player state to something other than Playering, will stop receiving controller inputs
     public static void SetPlayersState(PlayerState ps)

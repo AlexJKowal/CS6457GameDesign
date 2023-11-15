@@ -233,8 +233,6 @@ public class BallThrowing : MonoBehaviour
 
     public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime, Vector3? location)
     {
-        Debug.Log(fromSquare.name + " shot the ball to " + targetSquare.name);
-        
         shouldCheckWinOrLose = false;
         Vector3 ballPosition = ballTransform.position;
         

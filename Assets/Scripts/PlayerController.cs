@@ -8,8 +8,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
-using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -94,6 +92,8 @@ public class PlayerController : MonoBehaviour
                 break;
             default:
                 transform.position = homeSquare.transform.position;
+                anim.SetFloat("vely", 0);
+                anim.SetFloat("velx", 0);
                 break;
         }
     }

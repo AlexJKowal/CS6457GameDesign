@@ -10,16 +10,15 @@ using UnityEngine.UI;
 
 public class CountDownController : MonoBehaviour
 {
-    public int countDownTime;
     private int _countDownTime;
     public TextMeshProUGUI countDownText;
     public EventSystem eventSystem;
     private void Awake()
     {
-        ShowCountDown();
+        ShowCountDown(3);
     }
 
-    public void ShowCountDown()
+    public void ShowCountDown(int countDownTime)
     {
         _countDownTime = countDownTime;
         Time.timeScale = 1;
@@ -28,9 +27,9 @@ public class CountDownController : MonoBehaviour
 
     IEnumerator CountdownToStart()
     {
-        CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
-        
         GameManager.SetPlayersState(PlayerState.Idle);
+        
+        CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
 
         eventSystem.sendNavigationEvents = false;
         canvasGroup.interactable = true;

@@ -7,12 +7,7 @@ public class GameMenu : MonoBehaviour
 {
     public void OnStartGame()
     {
-        SceneManager.LoadScene("Scenes/FourSquare");
-    }
-
-    public void OnGameOptions()
-    {
-        // to be implemented
+        SceneManager.LoadScene("Scenes/LevelOne");
     }
 
     public void OnExit()
@@ -23,5 +18,10 @@ public class GameMenu : MonoBehaviour
     public void OnBackToHome()
     {
         SceneManager.LoadScene("Scenes/StartScreen");
+    }
+
+    public void OnTutorial()
+    {
+        SceneManager.LoadScene("Scenes/TutorialScene");
     }
 }

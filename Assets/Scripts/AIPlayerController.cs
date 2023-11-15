@@ -45,7 +45,11 @@ public class AIPlayerController : MonoBehaviour
                 break;
             default:
                 // Moving back to center area
-                agent.SetDestination(homeSquare.transform.position);
+                if (agent.enabled)
+                {
+                    agent.SetDestination(homeSquare.transform.position);
+                }
+
                 break;
         }
         
@@ -87,11 +91,18 @@ public class AIPlayerController : MonoBehaviour
                 extraPosition = velocity * (float)nd.Sample(new System.Random());
             }
 
-            agent.SetDestination(bt.targetLocation + extraPosition);
+            if (agent.enabled)
+            {
+                agent.SetDestination(bt.targetLocation + extraPosition);
+            }
+           
         }
         else
         {
-            agent.SetDestination(homeSquare.transform.position);
+            if (agent.enabled)
+            {
+                agent.SetDestination(homeSquare.transform.position);
+            }
         }
     }
     

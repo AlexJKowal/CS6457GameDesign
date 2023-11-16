@@ -26,12 +26,14 @@ public class AIPlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Game Start for AI Player");
         agent = GetComponent<NavMeshAgent>();
         if (agent == null)
             Debug.Log("NavMeshAgent could not be found");
 
         ballRbody = ball.GetComponent<Rigidbody>();
         anim = this.GetComponent<Animator>();
+        agent.speed = GetAgentSpeedBasedOnGameLevel(agent.speed);
     }
 
     // Update is called once per frame
@@ -87,7 +89,7 @@ public class AIPlayerController : MonoBehaviour
             }
             else
             {
-                NormalDistribution nd = new NormalDistribution(3.5f, 1f);
+                NormalDistribution nd = GetNormalDistributionBasedOnGameLevel();
                 extraPosition = velocity * (float)nd.Sample(new System.Random());
             }
 
@@ -140,8 +142,28 @@ public class AIPlayerController : MonoBehaviour
 
         float flyingTime = Random.Range(1.2f, 2f);
 
-        // Each level will reduce the flying time to its 80%
-        return flyingTime * (float)Math.Pow(0.8f, level - 1);
+        // Each level will reduce the flying time to its 70%
+        return flyingTime * (float)Math.Pow(0.7f, level - 1);
+    }
+
+    private float GetAgentSpeedBasedOnGameLevel(float speed)
+    {
+        int level = GameManager.Instance.currentLevel;
+        return speed * (float)Math.Pow(1.3, level - 1);
+    }
+
+    private NormalDistribution GetNormalDistributionBasedOnGameLevel()
+    {
+        int level = GameManager.Instance.currentLevel;
+        switch (level)
+        {
+            case 1:
+                return new NormalDistribution(3.5f, 0.8f);
+            case 2:
+                return new NormalDistribution(3.5f, 0.5f);
+            default:
+                return new NormalDistribution(3.5f, 0.2f);
+        }
     }
     
     IEnumerator ResetJustShot()

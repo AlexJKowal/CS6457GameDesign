@@ -110,12 +110,4 @@ AnimationClip:
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 1
   m_HasMotionFloatCurves: 0
-  m_Events:
-  - time: 0.2
-    functionName: Landed
-    data: 
-    objectReferenceParameter: {fileID: 3256777206845767768, guid: 457293d44b6f14ac09b99918c8c531f0,
-      type: 3}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
+  m_Events: []

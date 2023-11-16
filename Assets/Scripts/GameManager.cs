@@ -166,15 +166,17 @@ public class GameManager : MonoBehaviour
             Instance.gameStatus.GetComponent<AnimateText>().ShowText("Level Up!", waitSeconds);
             yield return new WaitForSeconds(waitSeconds + 1);
             
+            EventManager.TriggerEvent<CheeringEvent, Vector3>(Instance.confettiSystem.transform.position);
+            Instance.confettiSystem.SetActive(true);
+            
+            yield return new WaitForSeconds(2f);
+            
             if (Instance.currentLevel == 2)
             {
                 SceneManager.LoadScene("Scenes/LevelTwo");    
             } else if (Instance.currentLevel == 3) {
                 SceneManager.LoadScene("Scenes/LevelThree");   
-            }
-            
-            EventManager.TriggerEvent<CheeringEvent, Vector3>(Instance.confettiSystem.transform.position);
-            Instance.confettiSystem.SetActive(true);
+            } 
         }
     }
     

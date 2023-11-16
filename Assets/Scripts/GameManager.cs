@@ -200,7 +200,7 @@ public class GameManager : MonoBehaviour
         // Show count down
         int countDown = 3;
         Instance.countDownCanvas.GetComponent<CountDownController>().ShowCountDown(countDown);
-        yield return new WaitForSeconds(countDown + 1);
+        yield return new WaitForSeconds(countDown);
         
         GameManager.SetPlayersState(PlayerState.Playing);
     }

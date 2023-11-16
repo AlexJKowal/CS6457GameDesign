@@ -40,7 +40,7 @@ public class CountDownController : MonoBehaviour
         {
             countDownText.text = _countDownTime.ToString();
             _countDownTime--;
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.5f);
         }
 
         countDownText.text = "Go!";

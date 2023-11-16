@@ -34,6 +34,7 @@ public class AIPlayerController : MonoBehaviour
         ballRbody = ball.GetComponent<Rigidbody>();
         anim = this.GetComponent<Animator>();
         agent.speed = GetAgentSpeedBasedOnGameLevel(agent.speed);
+        agent.acceleration = GetAgentSpeedBasedOnGameLevel(agent.acceleration);
     }
 
     // Update is called once per frame
@@ -81,17 +82,17 @@ public class AIPlayerController : MonoBehaviour
             float distance = Vector3.Distance(ball.transform.position, bt.targetLocation);
 
             Vector3 extraPosition;
-            if (distance > 9f)
-            {
-                // when ball is far away, AI player would walk through the radius of target location
-                extraPosition = Quaternion.Euler(0, UnityEngine.Random.Range(-180.0f, 180.0f), 0)
-                                * new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f));
-            }
-            else
-            {
+            // if (distance > 19f)
+            // {
+            //     // when ball is far away, AI player would walk through the radius of target location
+            //     extraPosition = Quaternion.Euler(0, UnityEngine.Random.Range(-180.0f, 180.0f), 0)
+            //                     * new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f));
+            // }
+            // else
+            // {
                 NormalDistribution nd = GetNormalDistributionBasedOnGameLevel();
                 extraPosition = velocity * (float)nd.Sample(new System.Random());
-            }
+            // }
 
             if (agent.enabled)
             {

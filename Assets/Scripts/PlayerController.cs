@@ -178,14 +178,11 @@ public class PlayerController : MonoBehaviour
                 justReleased = true;
                 if (!ballServed)
                 {
-                    chargeAmount = maxThrowForce/2;
+                    chargeAmount = maxThrowForce/4;
                     ballServed = true;
                 }
                 
-                if (shotType == ShotType.lob_shot)
-                {
-                    PlayerLobShot();
-                }
+                PlayerLobShot();
                 
                 ResetBallHandling();
                 EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(SquareLocation.square_one, shotType);
@@ -202,7 +199,7 @@ public class PlayerController : MonoBehaviour
         GameObject estimatedTargetSquare = GameManager.getTargetSquareBasedOnPosition(reticleTransform.position);
         BallThrowing bt = ball.GetComponent<BallThrowing>();
 
-        float flyingTime = Math.Max(2f - shootingForce/14f * 1.5f, 0.6f);
+        float flyingTime = Math.Max(2f - shootingForce/14f, 0.6f);
         
         bt.ShotTheBallToTargetSquare( homeSquare, estimatedTargetSquare, 0.5f, reticleTransform.position);
     }

@@ -26,12 +26,15 @@ public class AIPlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Game Start for AI Player");
         agent = GetComponent<NavMeshAgent>();
         if (agent == null)
             Debug.Log("NavMeshAgent could not be found");
 
         ballRbody = ball.GetComponent<Rigidbody>();
         anim = this.GetComponent<Animator>();
+        agent.speed = GetAgentSpeedBasedOnGameLevel(agent.speed);
+        agent.acceleration = GetAgentSpeedBasedOnGameLevel(agent.acceleration);
     }
 
     // Update is called once per frame
@@ -45,7 +48,11 @@ public class AIPlayerController : MonoBehaviour
                 break;
             default:
                 // Moving back to center area
-                agent.SetDestination(homeSquare.transform.position);
+                if (agent.enabled)
+                {
+                    agent.SetDestination(homeSquare.transform.position);
+                }
+
                 break;
         }
         
@@ -75,23 +82,30 @@ public class AIPlayerController : MonoBehaviour
             float distance = Vector3.Distance(ball.transform.position, bt.targetLocation);
 
             Vector3 extraPosition;
-            if (distance > 9f)
-            {
-                // when ball is far away, AI player would walk through the radius of target location
-                extraPosition = Quaternion.Euler(0, UnityEngine.Random.Range(-180.0f, 180.0f), 0)
-                                * new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f));
-            }
-            else
-            {
-                NormalDistribution nd = new NormalDistribution(3.5f, 1f);
+            // if (distance > 19f)
+            // {
+            //     // when ball is far away, AI player would walk through the radius of target location
+            //     extraPosition = Quaternion.Euler(0, UnityEngine.Random.Range(-180.0f, 180.0f), 0)
+            //                     * new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f));
+            // }
+            // else
+            // {
+                NormalDistribution nd = GetNormalDistributionBasedOnGameLevel();
                 extraPosition = velocity * (float)nd.Sample(new System.Random());
-            }
+            // }
 
-            agent.SetDestination(bt.targetLocation + extraPosition);
+            if (agent.enabled)
+            {
+                agent.SetDestination(bt.targetLocation + extraPosition);
+            }
+           
         }
         else
         {
-            agent.SetDestination(homeSquare.transform.position);
+            if (agent.enabled)
+            {
+                agent.SetDestination(homeSquare.transform.position);
+            }
         }
     }
     
@@ -129,8 +143,28 @@ public class AIPlayerController : MonoBehaviour
 
         float flyingTime = Random.Range(1.2f, 2f);
 
-        // Each level will reduce the flying time to its 80%
-        return flyingTime * (float)Math.Pow(0.8f, level - 1);
+        // Each level will reduce the flying time to its 70%
+        return flyingTime * (float)Math.Pow(0.7f, level - 1);
+    }
+
+    private float GetAgentSpeedBasedOnGameLevel(float speed)
+    {
+        int level = GameManager.Instance.currentLevel;
+        return speed * (float)Math.Pow(1.3, level - 1);
+    }
+
+    private NormalDistribution GetNormalDistributionBasedOnGameLevel()
+    {
+        int level = GameManager.Instance.currentLevel;
+        switch (level)
+        {
+            case 1:
+                return new NormalDistribution(3.5f, 0.8f);
+            case 2:
+                return new NormalDistribution(3.5f, 0.5f);
+            default:
+                return new NormalDistribution(3.5f, 0.2f);
+        }
     }
     
     IEnumerator ResetJustShot()

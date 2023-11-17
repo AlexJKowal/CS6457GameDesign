@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class AnimateText : MonoBehaviour
 {
-    private float _maxFountSize = 60;
+    private float _maxFountSize = 36;
     private float _animateTimeInSeconds;
     private int _counts = 0;
     private TextMeshPro _textMeshPro;
@@ -38,7 +38,7 @@ public class AnimateText : MonoBehaviour
     {
         while (_counts <= _animateTimeInSeconds * 60)
         {
-            _textMeshPro.fontSize = Math.Min(_originalFontSize + _counts / 5f, _maxFountSize); 
+            _textMeshPro.fontSize = Math.Min(_originalFontSize + _counts / 10f, _maxFountSize); 
             yield return new WaitForSeconds(1/60f);
         }
 

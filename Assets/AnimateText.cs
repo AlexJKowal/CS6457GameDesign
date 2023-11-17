@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class AnimateText : MonoBehaviour
 {
-    private float _maxFountSize = 48;
+    private float _maxFountSize = 36;
     private float _animateTimeInSeconds;
     private int _counts = 0;
     private TextMeshPro _textMeshPro;

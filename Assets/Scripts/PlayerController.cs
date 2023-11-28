@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.UIElements;
 
 public class PlayerController : MonoBehaviour
 {
@@ -34,6 +35,7 @@ public class PlayerController : MonoBehaviour
     private UnityAction<GameObject> shotTimeUpEventListener;
     private PlayerControls playerControls;
     private Animator anim;
+    private SphereCollider ballSC;
     public bool isHoldingBall = false;
     private bool justPickedUp = false;
     private bool justReleased = false;
@@ -51,7 +53,7 @@ public class PlayerController : MonoBehaviour
         shotTimeUpEventListener = new UnityAction<GameObject>(ShotTimeUpEventHandler);
         playerControls = new PlayerControls();
         playerControls.PlayerActions.Movement.Enable();
-        
+        ballSC = ball.GetComponent<SphereCollider>();
         playerRb = GetComponent<Rigidbody>();
         ballRb = ball.GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
@@ -88,7 +90,6 @@ public class PlayerController : MonoBehaviour
                 // ready to pick up the ball again
                 HandleBall();
                 HandleMovePlayer();
-                HandleRotatePlayer();
                 break;
             default:
                 transform.position = homeSquare.transform.position;
@@ -98,41 +99,65 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    float HandleRotatePlayer()
+    void HandleRotatePlayer(float ydir, bool moving = false)
     {
-        Vector3 mousePos = Input.mousePosition;
-        Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
+        //If block rotates player to look at the mouse position
+        if (!moving)
+        {
+            Vector3 mousePos = Input.mousePosition;
+            Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
 
-        Vector3 aimDirection = mousePos - playerScreenPos;
-        float angle = Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg;
+            Vector3 aimDirection = mousePos - playerScreenPos;
+            float angle = Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg;
 
-        transform.rotation = Quaternion.Euler(0, angle - 45, 0);
-
-        return angle;
+            transform.rotation = Quaternion.Euler(0, angle - 45, 0);
+        }
+        //Else block handles rotation when moving
+        else
+        {
+            if (ydir >= 0)
+            {
+                transform.rotation = Quaternion.Euler(0, -45, 0);
+            }
+            else
+            {
+                transform.rotation = Quaternion.Euler(0, 135, 0);
+            }
+        }
     }
 
     void HandleMovePlayer()
     {
-        float angle = HandleRotatePlayer();
+        //float angle = HandleRotatePlayer();
         Vector2 inputVec = playerControls.PlayerActions.Movement.ReadValue<Vector2>();
         Vector3 direction = new Vector3(inputVec.x, 0f, inputVec.y);
-        Vector3 relative; 
 
         if (direction.magnitude >= 0.2f)
         {
             // Convert the direction from local to world space based on camera orientation
-            Vector3 moveDir = Quaternion.Euler(0, angle - 45, 0) * direction;
+            Vector3 moveDir = Quaternion.Euler(0, -45, 0) * direction;
             moveDir *= moveSpeed * Time.fixedDeltaTime;
             moveDir.y = 0;
 
             transform.position += moveDir;
-            relative = transform.InverseTransformDirection(moveDir.x, moveDir.y, moveDir.z);
-            anim.SetFloat("vely", relative.z * 5);
-            anim.SetFloat("velx", relative.x * 5);
+            HandleRotatePlayer(inputVec.y * 5, true);
+            //If and Else statements handle animation flipping to work in moving up and down the screen
+            if(inputVec.y >= 0)
+            {
+                anim.SetFloat("vely", Math.Abs(inputVec.y) * 5);
+                anim.SetFloat("velx", inputVec.x * 5);
+            }
+            else
+            {
+                anim.SetFloat("vely", Math.Abs(inputVec.y) * 5);
+                anim.SetFloat("velx", -inputVec.x * 5);
+            }
             playerRb.angularVelocity = Vector3.zero;
         }
+        //Makes the player look at the cursor and sets character to idle animation
         else
         {
+            HandleRotatePlayer(0);
             anim.SetFloat("vely", 0);
             anim.SetFloat("velx", 0);
         }
@@ -166,6 +191,7 @@ public class PlayerController : MonoBehaviour
         // If holding the ball
         if (isHoldingBall)
         {
+            ballSC.enabled = false;
             // Position the ball in front of the player
             ball.transform.position = transform.position + transform.forward + new Vector3(0f, 1.5f, 0f);
  
@@ -183,7 +209,7 @@ public class PlayerController : MonoBehaviour
                 }
                 
                 PlayerLobShot();
-                
+                ballSC.enabled = true;
                 ResetBallHandling();
                 EventManager.TriggerEvent<BallHitEvent, SquareLocation, ShotType>(SquareLocation.square_one, shotType);
                 quickRelease = false;

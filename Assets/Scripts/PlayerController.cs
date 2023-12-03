@@ -173,7 +173,7 @@ public class PlayerController : MonoBehaviour
                 justReleased = true;
                 if (!ballServed)
                 {
-                    chargeAmount = maxThrowForce/4;
+                    chargeAmount = maxThrowForce/6;
                     ballServed = true;
                 }
                 

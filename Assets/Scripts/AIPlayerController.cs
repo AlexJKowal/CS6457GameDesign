@@ -124,7 +124,7 @@ public class AIPlayerController : MonoBehaviour
                 {
                     justShot = true;
                     BallThrowing bt = ball.GetComponent<BallThrowing>();
-                    GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
+                    GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag, 0.6f);
 
                     float flyingTime = GetFlyingTimeBasedOnGameLevel();
                     bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime, null);
@@ -143,14 +143,14 @@ public class AIPlayerController : MonoBehaviour
 
         float flyingTime = Random.Range(1.2f, 2f);
 
-        // Each level will reduce the flying time to its 70%
+        // Each level will reduce the flying time to its 60%
         return flyingTime * (float)Math.Pow(0.7f, level - 1);
     }
 
     private float GetAgentSpeedBasedOnGameLevel(float speed)
     {
         int level = GameManager.Instance.currentLevel;
-        return speed * (float)Math.Pow(1.3, level - 1);
+        return speed * (float)Math.Pow(1.5, level - 1);
     }
 
     private NormalDistribution GetNormalDistributionBasedOnGameLevel()

@@ -88,13 +88,21 @@ public class BallThrowing : MonoBehaviour
         return new Vector3(x, y, z);
     }
 
-    public GameObject GetRandomTargetSquare(String excludedSquare)
+    public GameObject GetRandomTargetSquare(String excludedSquare, float percentage)
     {
         // form a new list
         List<GameObject> targetSquares = squares.Where(s => !s.CompareTag(excludedSquare)).ToList(); 
         
         // randomly pick one of three squares
-        return targetSquares[UnityEngine.Random.Range(0, targetSquares.Count)];
+        float range = Random.Range(0, 1);
+        if (range <= percentage)
+        {
+            return targetSquares[UnityEngine.Random.Range(0, targetSquares.Count)];
+        }
+        else
+        {
+            return targetSquares[0];
+        }
     }
     
     public Vector3 GetRandomTargetPosition(GameObject square)

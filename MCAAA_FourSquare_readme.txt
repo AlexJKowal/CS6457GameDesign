@@ -2,7 +2,7 @@ Game Repo:
 https://github.gatech.edu/mwallis6/cs6457-mcaaa
 
 i. Start scene file
-* FourSquare
+* StartScreen
 
 ii. How to play and what parts of the level to observe technology requirements
 
@@ -36,10 +36,12 @@ resetting game state
 - Implemented initial smash shot behaviour
 - Implemented component for dictating appearance of power up collectibles
 - Taking care of PR reviews.
+- Design and Added Level 3
 
 * Jeff Duan
-Focused on AI player behaviors and ball throwing logic based on newton's law, initialized GameManager etc.
+- Focused on AI player behaviors and ball throwing logic based on newton's law, initialized GameManager etc.
 Taking care of PR reviews.
+- Design and Added Level 1 and 2
 
 * AJK
 Taking care of some assets to improve game feels, such as scoreboard, fence and cartoon figures includes their animations.

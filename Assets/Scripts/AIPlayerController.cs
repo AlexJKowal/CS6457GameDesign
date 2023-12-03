@@ -14,12 +14,12 @@ public class AIPlayerController : MonoBehaviour
     public PlayerState playerState { get; set; } = PlayerState.Playing;
     public GameObject homeSquare;
     public GameObject ball;
-    
+    public GameObject mainBall;
     public float rotationSpeed = 5;
         
     private Animator anim;
     private Rigidbody rbody;
-    private Rigidbody ballRbody;
+    public Rigidbody ballRbody;
     private Vector3 targetLocation;
     private bool justShot = false;
 
@@ -40,6 +40,11 @@ public class AIPlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (ball == null)
+        {
+            ball = mainBall;
+            ballRbody = mainBall.GetComponent<Rigidbody>();
+        }
         HandleRotatePlayer();
         switch (playerState)
         {
@@ -74,7 +79,7 @@ public class AIPlayerController : MonoBehaviour
         BallThrowing bt = ball.GetComponent<BallThrowing>();
 
         // ball is hitting to our location
-        if (bt._targetSquare != null && homeSquare.CompareTag(bt._targetSquare.tag))
+        if (bt.targetSquare != null && homeSquare.CompareTag(bt.targetSquare.tag))
         {
             Vector3 velocity = ball.GetComponent<Rigidbody>().velocity.normalized;
             velocity.y = 0;
@@ -120,21 +125,26 @@ public class AIPlayerController : MonoBehaviour
         switch (playerState)
         {
             case PlayerState.Playing:
-                if (!justShot && other.gameObject.CompareTag("Ball"))
+                if (!justShot && (other.gameObject.CompareTag("Ball") || other.gameObject.CompareTag("CopyBall")))
                 {
-                    justShot = true;
                     BallThrowing bt = ball.GetComponent<BallThrowing>();
                     GameObject targetSquare = bt.GetRandomTargetSquare(homeSquare.tag);
-
-                    float flyingTime = GetFlyingTimeBasedOnGameLevel();
-                    bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime, null);
-
-                    //reset justShot to false
-                    StartCoroutine(ResetJustShot());
+                    ShootTheBall(targetSquare, bt);
                 }
-
                 break;
         }
+    }
+
+    public void ShootTheBall(GameObject targetSquare, BallThrowing bt)
+    {
+            justShot = true;
+
+            float flyingTime = GetFlyingTimeBasedOnGameLevel();
+            bt.ShotTheBallToTargetSquare(homeSquare, targetSquare, flyingTime, null);
+
+            //reset justShot to false
+            StartCoroutine(ResetJustShot());
+        
     }
 
     private float GetFlyingTimeBasedOnGameLevel()

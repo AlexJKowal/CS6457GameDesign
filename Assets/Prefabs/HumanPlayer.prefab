@@ -74,6 +74,7 @@ Transform:
   - {fileID: 4692379458296161863}
   - {fileID: 5278196795585053064}
   - {fileID: 6992425343990901931}
+  - {fileID: 3238924385874338075}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -179,10 +180,7 @@ MonoBehaviour:
   mainCamera: {fileID: 0}
   ballServed: 0
   isHoldingBall: 0
-  smashMultiplier: 1.2
   maxThrowForce: 20
-  initialSmashForce: 2
-  smashTransitionPeriod: 0.25
   chargeRate: 10
   lobTweak: 1
 --- !u!1 &54042862954048237
@@ -2813,6 +2811,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5884503824947944304}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7256881236348972082
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3238924385874338075}
+  m_Layer: 0
+  m_Name: CamTransform
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3238924385874338075
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7256881236348972082}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 850597037974154792}
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7322700715545105507
 GameObject:

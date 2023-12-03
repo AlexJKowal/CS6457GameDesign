@@ -182,8 +182,17 @@ public class RandomCollectible : MonoBehaviour
 
             ResetCollectable();
             randomChanceCheck = false;
-            ScalePlayer(c.gameObject, true);
-            StartCoroutine(ShrinkPlayer(c.gameObject, false, 10f));
+            
+            float randomCollectNumber = Random.Range(0, 100);
+            if (randomCollectNumber > 50 || GameManager.multiBallSetting)
+            {
+                ScalePlayer(c.gameObject, true);
+                StartCoroutine(ShrinkPlayer(c.gameObject, false, 10f));
+            }
+            else
+            {
+                GameManager.multiBallSetting = true;
+            }
         }
     }
 

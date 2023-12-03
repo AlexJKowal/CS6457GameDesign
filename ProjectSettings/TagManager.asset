@@ -26,6 +26,7 @@ TagManager:
   - Collectible
   - Confetti
   - PlayGrounds
+  - CopyBall
   layers:
   - Default
   - TransparentFX
@@ -35,7 +36,7 @@ TagManager:
   - UI
   - Hazards
   - Players
-  - 
+  - Ball
   - 
   - 
   - 

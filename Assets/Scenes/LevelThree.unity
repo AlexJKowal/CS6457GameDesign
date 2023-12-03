@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.1769922, g: 0.2215594, b: 0.30383462, a: 1}
+  m_IndirectSpecularColor: {r: 0.17699257, g: 0.22156017, b: 0.3038357, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2569,6 +2569,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ballPrefab: {fileID: 3590565491754773681, guid: bb0018446001beb4b9823dd1061bdf32,
     type: 3}
+  ballTransform: {fileID: 0}
   squares:
   - {fileID: 344466221}
   - {fileID: 1661783858}
@@ -2576,8 +2577,8 @@ MonoBehaviour:
   - {fileID: 452241234}
   target: {fileID: 1452591887}
   _fromSquare: {fileID: 0}
-  _targetSquare: {fileID: 0}
   targetLocation: {x: 0, y: 0, z: 0}
+  _bounced: 0
   shouldCheckWinOrLose: 0
 --- !u!4 &616872052 stripped
 Transform:
@@ -2627,9 +2628,11 @@ MonoBehaviour:
   square3: {fileID: 2066771423}
   square4: {fileID: 452241234}
   confettiSystem: {fileID: 1262279206}
+  MAX_BALLS: 3
+  ball: {fileID: 587367980}
   currentLevel: 3
-  playerWins: 0
-  playerLoses: 0
+  playerScore: 0
+  playerLives: 0
 --- !u!4 &652948777
 Transform:
   m_ObjectHideFlags: 0
@@ -10574,6 +10577,11 @@ PrefabInstance:
       objectReference: {fileID: 587367980}
     - target: {fileID: 4742477482615804409, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
+      propertyPath: mainBall
+      value: 
+      objectReference: {fileID: 587367980}
+    - target: {fileID: 4742477482615804409, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
+        type: 3}
       propertyPath: homeSquare
       value: 
       objectReference: {fileID: 2066771423}
@@ -13964,6 +13972,11 @@ PrefabInstance:
       objectReference: {fileID: 587367980}
     - target: {fileID: 4742477482615804409, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
+      propertyPath: mainBall
+      value: 
+      objectReference: {fileID: 587367980}
+    - target: {fileID: 4742477482615804409, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
+        type: 3}
       propertyPath: homeSquare
       value: 
       objectReference: {fileID: 452241234}
@@ -15800,6 +15813,11 @@ PrefabInstance:
     - target: {fileID: 4742477482615804409, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
       propertyPath: ball
+      value: 
+      objectReference: {fileID: 587367980}
+    - target: {fileID: 4742477482615804409, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
+        type: 3}
+      propertyPath: mainBall
       value: 
       objectReference: {fileID: 587367980}
     - target: {fileID: 4742477482615804409, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.1769922, g: 0.2215594, b: 0.30383462, a: 1}
+  m_IndirectSpecularColor: {r: 0.17699257, g: 0.22156017, b: 0.3038357, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -574,7 +574,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   squareBound: {fileID: 344466221}
   moveSpeed: 0.1
-  probabilityFactor: 75
+  probabilityFactor: 0
   defaultBoostAmount: 1.5
   defaultBoostDuration: 1
 --- !u!136 &98291086
@@ -1550,7 +1550,9 @@ MonoBehaviour:
   mainCamera: {fileID: 882842501}
   homeSquare: {fileID: 1661783858}
   ball: {fileID: 587367980}
+  mainBall: {fileID: 587367980}
   rotationSpeed: 5
+  ballRbody: {fileID: 0}
 --- !u!195 &420985768
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2233,6 +2235,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ballPrefab: {fileID: 3590565491754773681, guid: bb0018446001beb4b9823dd1061bdf32,
     type: 3}
+  ballTransform: {fileID: 0}
   squares:
   - {fileID: 344466221}
   - {fileID: 1661783858}
@@ -2240,8 +2243,8 @@ MonoBehaviour:
   - {fileID: 452241234}
   target: {fileID: 1452591887}
   _fromSquare: {fileID: 0}
-  _targetSquare: {fileID: 0}
   targetLocation: {x: 0, y: 0, z: 0}
+  _bounced: 0
   shouldCheckWinOrLose: 0
 --- !u!1001 &637209507
 PrefabInstance:
@@ -2549,9 +2552,11 @@ MonoBehaviour:
   square3: {fileID: 2066771423}
   square4: {fileID: 452241234}
   confettiSystem: {fileID: 1262279206}
+  MAX_BALLS: 3
+  ball: {fileID: 587367980}
   currentLevel: 2
-  playerWins: 0
-  playerLoses: 0
+  playerScore: 0
+  playerLives: 0
 --- !u!4 &652948777
 Transform:
   m_ObjectHideFlags: 0
@@ -2800,7 +2805,9 @@ MonoBehaviour:
   mainCamera: {fileID: 882842501}
   homeSquare: {fileID: 2066771423}
   ball: {fileID: 587367980}
+  mainBall: {fileID: 587367980}
   rotationSpeed: 5
+  ballRbody: {fileID: 0}
 --- !u!136 &749487570
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -11311,7 +11318,9 @@ MonoBehaviour:
   mainCamera: {fileID: 882842501}
   homeSquare: {fileID: 452241234}
   ball: {fileID: 587367980}
+  mainBall: {fileID: 587367980}
   rotationSpeed: 5
+  ballRbody: {fileID: 0}
 --- !u!136 &2013286819
 CapsuleCollider:
   m_ObjectHideFlags: 0

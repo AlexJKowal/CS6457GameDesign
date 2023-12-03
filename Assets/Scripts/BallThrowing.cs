@@ -19,7 +19,7 @@ public class BallThrowing : MonoBehaviour
     public GameObject ballPrefab;
     
     private Rigidbody ballRb;
-    private Transform ballTransform;
+    public Transform ballTransform;
     private SphereCollider _collider;
 
     public List<GameObject> squares;
@@ -28,11 +28,24 @@ public class BallThrowing : MonoBehaviour
     public GameObject target;
 
     public GameObject _fromSquare;
-    public GameObject _targetSquare;
+
+    public GameObject targetSquare
+    {
+        get { return _targetSquare; }
+        set
+        {
+            if (_targetSquare != value)
+            {
+                _targetSquare = value;
+                UpdatedTargetSquare();
+            }
+        }
+    }
+    private GameObject _targetSquare;
 
     public Vector3 targetLocation;
     
-    private int _bounced;
+    public int _bounced;
     public bool shouldCheckWinOrLose = false;
     
     // Ignore duplicated collisions
@@ -123,7 +136,12 @@ public class BallThrowing : MonoBehaviour
             throw new ArgumentException("Need to set Squares");
         }
 
-        ballTransform = this.gameObject.transform;
+        SetValues();
+    }
+
+    public void SetValues()
+    {
+        ballTransform = gameObject.transform;
         _collider = GetComponent<SphereCollider>();
         ballRb = GetComponent<Rigidbody>();
         target.SetActive(false);
@@ -138,12 +156,7 @@ public class BallThrowing : MonoBehaviour
     private void OnCollisionExit(Collision other)
     {
         // when player holds the ball, it triggers false collision events
-        if (!shouldCheckWinOrLose)
-        {
-            return;
-        }
-
-        if (ballRb.isKinematic)
+        if (!shouldCheckWinOrLose || ballRb.isKinematic)
         {
             return;
         }
@@ -162,6 +175,11 @@ public class BallThrowing : MonoBehaviour
         }
         
         CheckIfGameIsFinished(other);
+        
+        if (gameObject.CompareTag("CopyBall") && (other.gameObject.CompareTag("PlayGrounds")))
+        {
+            GameManager.DestroyBall(gameObject);
+        }
         
         // Call previous win lose logic
         // PreviousWinLoseLogic(other);
@@ -194,7 +212,7 @@ public class BallThrowing : MonoBehaviour
         if (_bounced == 0)
         {
             // ball should not hit the from square
-            if (other.gameObject.CompareTag(_fromSquare.tag) || !other.gameObject.tag.Contains("Square"))
+            if (other.gameObject.CompareTag(_fromSquare.tag) || !(other.gameObject.tag.Contains("Square") || other.gameObject.tag.Contains("AI")))
             {
                 GameObject player = GameManager.getPlayerOnSquare(_fromSquare);
                 GameManager.UpdateWinLose(player);
@@ -204,9 +222,9 @@ public class BallThrowing : MonoBehaviour
         } else if (_bounced == 1)
         {
             // the collision has to be the player on target court, otherwise, someone has lost the game
-            if (_targetSquare)
+            if (targetSquare)
             {
-                GameObject targetPlayer = GameManager.getPlayerOnSquare(_targetSquare);
+                GameObject targetPlayer = GameManager.getPlayerOnSquare(targetSquare);
                 // if player is expected, then it is good
                 if (!GameObject.ReferenceEquals(targetPlayer, other.gameObject))
                 {
@@ -225,22 +243,27 @@ public class BallThrowing : MonoBehaviour
                     }
                 }
             }
+
+            if (gameObject.CompareTag("CopyBall"))
+            {
+                GameManager.DestroyBall(gameObject);
+            }
         }
         
         // should hit the other 3 squares
         _bounced = 1;    
     }
 
-    public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetSquare, float flyingTime, Vector3? location)
+    public void ShotTheBallToTargetSquare(GameObject fromSquare, GameObject targetShotSquare, float flyingTime, Vector3? location)
     {
         shouldCheckWinOrLose = false;
         Vector3 ballPosition = ballTransform.position;
         
         ballRb.isKinematic = true;
         _fromSquare = fromSquare; 
-        _targetSquare = targetSquare;
+        targetSquare = targetShotSquare;
 
-        targetLocation = location ?? GetRandomTargetPosition(targetSquare);
+        targetLocation = location ?? GetRandomTargetPosition(targetShotSquare);
 
         Vector3 velocity = GetVelocityToHitTargetGroundBasedOnExpectedTime(ballPosition, targetLocation, flyingTime);
 
@@ -254,6 +277,12 @@ public class BallThrowing : MonoBehaviour
         
         ballRb.velocity = velocity;
         ballRb.isKinematic = false;
+        
+        if (gameObject.CompareTag("Ball") && GameManager.multiBallSetting && fromSquare.CompareTag("Square1"))
+        {
+            GameManager.AddBalls();
+        }
+        
     }
 
     IEnumerator StartCheckingBounce()
@@ -270,5 +299,10 @@ public class BallThrowing : MonoBehaviour
         {
             target.SetActive(true);
         }
+    }
+
+    private void UpdatedTargetSquare()
+    {
+        GameManager.BallShotToNewTarget(gameObject, targetSquare);
     }
 }

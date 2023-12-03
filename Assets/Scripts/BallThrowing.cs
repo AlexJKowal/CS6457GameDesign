@@ -189,7 +189,11 @@ public class BallThrowing : MonoBehaviour
     {
         long collisionTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         // ignore if collision time is less than 0.3 seconds
-        if (collisionTime - _lastCollisionTime < 300 && GameObject.ReferenceEquals(other.gameObject, _lastCollisionObject))
+        if 
+        (_lastCollisionObject != null && (collisionTime - _lastCollisionTime < 300 && ReferenceEquals(other.gameObject, _lastCollisionObject) ||
+         (other.gameObject.CompareTag("Line") && (_lastCollisionObject.tag.Contains("Square")) ||
+          (other.gameObject.tag.Contains("Square") && _lastCollisionObject.CompareTag("Line")) ||
+          (other.gameObject.tag.Contains("Square")) && _lastCollisionObject.tag.Contains("Square"))))
         {
             _lastCollisionTime = collisionTime;
             _lastCollisionObject = other.gameObject;

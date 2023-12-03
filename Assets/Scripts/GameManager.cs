@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     public int MAX_BALLS = 3;
 
     public static bool multiBallSetting;
+    public static bool gameLost = false;
 
     public GameObject ball;
     
@@ -171,48 +172,53 @@ public class GameManager : MonoBehaviour
 
     public static void UpdateWinLose(GameObject losePlayer)
     {
-        lock (Instance._lossCheckLockObject)
+        if (!gameLost)
         {
-            bool playerWin;
-            // human player lose the game
-            if (ReferenceEquals(losePlayer, Instance.humanPlayer))
+            lock (Instance._lossCheckLockObject)
             {
-                playerWin = false;
-                Instance.playerLives--;
-
-                if (Instance.playerLives == 0)
+                multiBallSetting = false;
+                bool playerWin;
+                // human player lose the game
+                if (ReferenceEquals(losePlayer, Instance.humanPlayer))
                 {
-                    // Load Lose Scene
-                   Instance.StartCoroutine(EndLosingGame());
-                    return;
+                    playerWin = false;
+                    Instance.playerLives--;
+
+                    if (Instance.playerLives == 0)
+                    {
+                        // Load Lose Scene
+                        Instance.StartCoroutine(EndLosingGame());
+                        return;
+                    }
+
+                }
+                else // human player win the game
+                {
+                    playerWin = true;
+                    Instance.playerScore++;
+                    if (Instance.playerScore >= Instance.LEVEL_UP_WINS)
+                    {
+                        // load next level
+                        Instance.StartCoroutine(LevelUp());
+                        return;
+                    }
                 }
 
+                Instance.StartCoroutine(ShowWinLoseTransitions(playerWin));
             }
-            else // human player win the game
-            {
-                playerWin = true;
-                Instance.playerScore++;
-                if (Instance.playerScore >= Instance.LEVEL_UP_WINS)
-                {
-                    // load next level
-                      Instance.StartCoroutine(LevelUp());
-                      return;
-                }
-            }
-
-            Instance.StartCoroutine(ShowWinLoseTransitions(playerWin));
         }
     }
 
     // End the game after 3 loses
     static IEnumerator EndLosingGame()
     {
-        multiBallSetting = false;
+        gameLost = true;
         float waitSeconds = 2f;
         
         Instance.gameStatus.GetComponent<AnimateText>().ShowText("You Lose the Game.", waitSeconds);
         yield return new WaitForSeconds(waitSeconds + 1);
-        
+
+        gameLost = false;
         SceneManager.LoadScene("Scenes/LoseScene");
     }
 
@@ -227,7 +233,6 @@ public class GameManager : MonoBehaviour
 
     static IEnumerator LevelUp()
     {
-        multiBallSetting = false;
         SetPlayersState(PlayerState.Idle);
         
         // Reset the game (Avoid ball bouncing again after win or lose
@@ -380,7 +385,7 @@ public class GameManager : MonoBehaviour
                 GameObject TopBallObject = pair.Value[0];
                 BallThrowing TopBallClass = TopBallObject.GetComponent<BallThrowing>();
               
-                if (AIController.ball == removedBall || TopBallClass != null && AIController.ball.GetComponent<BallThrowing>()._bounced <=
+                if (ReferenceEquals(AIController.ball, removedBall) || TopBallClass != null && AIController.ball.GetComponent<BallThrowing>()._bounced <=
                     TopBallClass._bounced)
                 {
                     if (TopBallClass != null)

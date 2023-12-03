@@ -3320,7 +3320,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: a073fc9d542f729428d13fa8fecfcea4,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -42.6
+      value: -33.78
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: a073fc9d542f729428d13fa8fecfcea4,
         type: 3}
@@ -3330,7 +3330,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: a073fc9d542f729428d13fa8fecfcea4,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 37.5
+      value: 52.83
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: a073fc9d542f729428d13fa8fecfcea4,
         type: 3}
@@ -10590,6 +10590,16 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 882842501}
+    - target: {fileID: 4742477482615804414, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
+        type: 3}
+      propertyPath: m_Speed
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 4742477482615804414, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
+        type: 3}
+      propertyPath: m_Acceleration
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 5024972617505246251, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
       propertyPath: m_Layer
@@ -13985,6 +13995,21 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 882842501}
+    - target: {fileID: 4742477482615804414, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
+        type: 3}
+      propertyPath: m_Speed
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 4742477482615804414, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
+        type: 3}
+      propertyPath: m_Acceleration
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 4742477482615804414, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
+        type: 3}
+      propertyPath: m_AngularSpeed
+      value: 120
+      objectReference: {fileID: 0}
     - target: {fileID: 4838574022481045494, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -15830,6 +15855,16 @@ PrefabInstance:
       propertyPath: mainCamera
       value: 
       objectReference: {fileID: 882842501}
+    - target: {fileID: 4742477482615804414, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
+        type: 3}
+      propertyPath: m_Speed
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 4742477482615804414, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
+        type: 3}
+      propertyPath: m_Acceleration
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 5024972617505246251, guid: fdda1eaa11e0fa34b8ac845b0d9d0f47,
         type: 3}
       propertyPath: m_Layer
